@@ -14,8 +14,8 @@ app.engine('html', require('ejs').renderFile);
 function get_connection(){
     return mysql.createConnection({
         host: "localhost",
-        user: "john",
-        password: "Pass1234",
+        user: "root",
+        password: "password",
         database: "mrideshare"
     });
 };
@@ -27,31 +27,36 @@ app.get("/", (req, res) =>{
     res.send("hello");
 });
 
-app.get("/login", (req, res) =>{
-    //res.send("login page tbd");
-    res.render("homepage.html", {uname: "Vishnu"});
-})
+app.get("/login", (req, res)  =>{
+
+  const connection = get_connection();
+  console.log("connection passed maybe?");
+  const user_username = req.body.login_username;
+  const user_password = req.body.login_password;
+  console.log("fetching user with username: " + req.body.login_username);
+  const query_string = "SELECT password FROM users WHERE email = ?";
+  connection.query(query_string, [user_username], (err, results, fields) =>{
+      console.log("authenticating");
+      if(err){
+          console.log("error" + err + " error");
+          res.sendStatus(500);
+          res.end();
+          return;
+      }
+
+      console.log("fetched new user");
+      res.send("success!");
+      //need some response
+  });
+
+});
 
 app.post("/insert", (req, res) =>{
-  /*var connection = get_connection();
-  connection.connect(function(err) {
-    if (err) throw err;
-    const username = req.body.create_username;
-    console.log(username);
-    const password = req.body.create_password;
-    const time = req.body.create_time;
-    console.log(time);
-    const query_string = "INSERT INTO user (email, pword) VALUES (?, ?)";
-    connection.query(query_string, [username, password], function (err, result, fields) {
-      if (err) throw err;
-      res.redirect('http://google.com');
-    });
-  });*/
     var connection = get_connection();
     const username = req.body.create_username;
     console.log(username);
     const password = req.body.create_password;
-    const query_string = "INSERT INTO user (email, pword) VALUES (?, ?)";
+    const query_string = "INSERT INTO user (email, password) VALUES (?, ?)";
     connection.query(query_string, [username, password], (err, results, fields)=>{
       if(err){
           console.log("error");
@@ -116,7 +121,7 @@ app.get("/init", (req, res)=>{
                   "id INTEGER not NULL AUTO_INCREMENT," +
                   "userID INTEGER," +
                   "airline VARCHAR(50)," +
-                  "calenderInfo DATETIME," +
+                  "calendarInfo DATETIME," +
                   "streetNum INTEGER," +
                   "streetName VARCHAR(50)," +
                   "city VARCHAR(50)," +
@@ -132,7 +137,41 @@ app.get("/init", (req, res)=>{
             console.log("success");
           }
       })
-})
+});
+
+
+app.post("/schedule", (req, res) => {
+  console.log("scheduling a trip");
+  const street_num = req.body.street_num;
+  const street_addr = req.body.street_addr;
+  const zipcode = req.body.zipcode;
+  const airline = req.body.airline;
+  //const month = get_selected_option(req.body.month);
+ // const day = get_selected_option(req.body.day);
+  const year = "2020";
+  const date = req.body.date;
+  const hour = req.body.time.substring(0, 2);
+  const min = req.body.time.substring(3,5);
+
+  const date_time = date + " " + hour + ":" + min;
+
+  const connection = get_connection();
+  const query_string = "INSERT INTO trips (airline, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?)";
+  connection.query(query_string, [airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
+      if(err){
+          console.log("error inserting new trip");
+          res.sendStatus(500);
+          return;
+      }
+      else{
+          console.log("trip scheduled");
+          res.send("trip scheduled");
+              //need to reroute
+      }
+  });
+
+
+});
 
 app.listen(3000, () => {
     console.log("Server is listening");
