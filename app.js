@@ -14,8 +14,8 @@ app.engine('html', require('ejs').renderFile);
 function get_connection(){
     return mysql.createConnection({
         host: "localhost",
-        user: "root",
-        password: "password",
+        user: "john",
+        password: "Pass1234",
         database: "mrideshare"
     });
 };
@@ -26,6 +26,10 @@ app.get("/", (req, res) =>{
     console.log("Responding to root route");
     res.send("hello");
 });
+
+app.get("/welcome", (req, res) =>{
+    res.render("homepage.html", {uname: "User"});
+})
 
 app.get("/login", (req, res)  =>{
 
@@ -137,6 +141,7 @@ app.get("/init", (req, res)=>{
             console.log("success");
           }
       })
+      res.redirect()
 });
 
 
