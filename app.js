@@ -47,7 +47,7 @@ app.post("/insert", (req, res) =>{
       res.redirect('http://google.com');
     });
   });*/
-    var connection = get_connection()
+    var connection = get_connection();
     const username = req.body.create_username;
     console.log(username);
     const password = req.body.create_password;
