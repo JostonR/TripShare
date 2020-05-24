@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sign Up</title>
+</head>
+<body bgcolor="gold" text="navy">
+    <h1>Project X Welcome <%= uname %> </h1>
+    <h2>Log in</h2>
+    <form>
+        <div>
+            <label>Username</label>
+            <input>
+        </div>
+        <div>
+            <label>Password</label>
+            <input>
+        </div>
+        <button>Login</button>
+    </form>
+
+    <h2>Sign Up</h2>
+    <form action = "/insert" method = "post">
+        <div>
+            <label>umich email</label>
+            <input name = "create_username">
+        </div>
+        <div>
+            <label>Password</label>
+            <input name = "create_password">
+        </div>
+        <div>
+            <label>time</label>
+            <input type = "time" name = "create_time">
+        <button>Login</button>
+    </form>
+</body>
+</html>
