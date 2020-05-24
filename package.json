@@ -1,5 +1,5 @@
 {
-  "name": "project_x",
+  "name": "TripShare",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -10,6 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/JostonR/TripShare.git"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
