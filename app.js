@@ -16,8 +16,8 @@ app.engine('html', require('ejs').renderFile);
 function get_connection(){
     return mysql.createConnection({
         host: "localhost",
-        user: "root",
-        password: "password",
+        user: "john",
+        password: "Pass1234",
         database: "mrideshare"
     });
 };
@@ -25,8 +25,8 @@ function get_connection(){
 var options = {
   host: 'localhost',
   port: '3306',
-  user: 'root',
-  password: 'password',
+  user: 'john',
+  password: 'Pass1234',
   database: 'mrideshare'
 };
 
