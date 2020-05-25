@@ -81,7 +81,7 @@ app.post("/insert", (req, res) =>{
     const username = req.body.create_username;
     console.log(username);
     const password = req.body.create_password;
-    const query_string = "INSERT INTO user (email, password) VALUES (?, ?)";
+    const query_string = "INSERT INTO users (email, password) VALUES (?, ?)";
     connection.query(query_string, [username, password], (err, results, fields)=>{
       if(err){
           console.log("error");
@@ -90,7 +90,7 @@ app.post("/insert", (req, res) =>{
       }
       else{
           console.log("user created!");
-          req.session.username = user_username;
+          req.session.username = username;
           res.send("new user created");
       }
     })
