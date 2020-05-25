@@ -56,7 +56,7 @@ app.post("/login", (req, res)  =>{
   console.log("connection passed maybe?");
   const user_username = req.body.login_username;
   const user_password = req.body.login_password;
-  console.log("fetching user with username: " + req.body.login_username);
+  console.log("fetching user with username: " + user_username);
   const query_string = "SELECT password FROM users WHERE email = ?";
   connection.query(query_string, [user_username], (err, results, fields) =>{
       console.log("authenticating");
@@ -69,7 +69,9 @@ app.post("/login", (req, res)  =>{
 
       req.session.username = user_username;
       console.log("fetched new user");
-      console.log("sesssion for: " + req.session.username);
+      const session_name = req.session.username;
+      console.log("sesssion for: " + session_name);
+      console.log("ratchet version: " + req.session.username);
       res.send("success!");
       //need some response
   });
@@ -89,8 +91,11 @@ app.post("/insert", (req, res) =>{
           return;
       }
       else{
-          console.log("user created!");
+          console.log("user created: " + username);
           req.session.username = username;
+          const temp = req.session.username;
+          console.log("session for " + req.session.username);
+          console.log("if that didnt work: " + temp);
           res.send("new user created");
       }
     })
@@ -183,8 +188,8 @@ app.post("/schedule", (req, res) => {
   const date_time = date + " " + hour + ":" + min;
 
   const connection = get_connection();
-  const query_string = "INSERT INTO trips (airline, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?)";
-  connection.query(query_string, [airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
+  const query_string = "INSERT INTO trips (userID, airline, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+  connection.query(query_string, [airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode, 1], (err, results, fields) =>{
       if(err){
           console.log("error inserting new trip");
           res.sendStatus(500);
@@ -192,6 +197,7 @@ app.post("/schedule", (req, res) => {
       }
       else{
           console.log("trip scheduled");
+          console.log("session for: " + req.session.username);
           res.send("trip scheduled");
               //need to reroute
       }
