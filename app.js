@@ -3,7 +3,7 @@ var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 const app = express();
 const mysql = require('mysql');
-//app.use(express.static('./pages'));
+app.use(express.static('./pages'));
 const body_parser = require('body-parser');
 app.use(body_parser.urlencoded({extended: false}));
 
@@ -50,7 +50,7 @@ app.get("/welcome", (req, res) =>{
     res.render("homepage.html", {uname: "User"});
 })
 
-app.get("/login", (req, res)  =>{
+app.post("/login", (req, res)  =>{
 
   const connection = get_connection();
   console.log("connection passed maybe?");
@@ -71,6 +71,7 @@ app.get("/login", (req, res)  =>{
       console.log("fetched new user");
       const session_name = req.session.username;
       console.log("sesssion for: " + session_name);
+      console.log("ratchet version: " + req.session.username);
       res.send("success!");
       //need some response
   });
@@ -82,7 +83,7 @@ app.post("/insert", (req, res) =>{
     const username = req.body.create_username;
     console.log(username);
     const password = req.body.create_password;
-    const query_string = "INSERT INTO user (email, password) VALUES (?, ?)";
+    const query_string = "INSERT INTO users (email, password) VALUES (?, ?)";
     connection.query(query_string, [username, password], (err, results, fields)=>{
       if(err){
           console.log("error");
@@ -91,7 +92,10 @@ app.post("/insert", (req, res) =>{
       }
       else{
           console.log("user created: " + username);
-          req.session.username = user_username;
+          req.session.username = username;
+          const temp = req.session.username;
+          console.log("session for " + req.session.username);
+          console.log("if that didnt work: " + temp);
           res.send("new user created");
       }
     })
@@ -184,8 +188,8 @@ app.post("/schedule", (req, res) => {
   const date_time = date + " " + hour + ":" + min;
 
   const connection = get_connection();
-  const query_string = "INSERT INTO trips (airline, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?)";
-  connection.query(query_string, [airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
+  const query_string = "INSERT INTO trips (userID, airline, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+  connection.query(query_string, [airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode, 1], (err, results, fields) =>{
       if(err){
           console.log("error inserting new trip");
           res.sendStatus(500);
@@ -193,6 +197,7 @@ app.post("/schedule", (req, res) => {
       }
       else{
           console.log("trip scheduled");
+          console.log("session for: " + req.session.username);
           res.send("trip scheduled");
               //need to reroute
       }
