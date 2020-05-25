@@ -1,4 +1,6 @@
 const express = require('express');
+var session = require('express-session');
+var MySQLStore = require('express-mysql-session')(session);
 const app = express();
 const mysql = require('mysql');
 //app.use(express.static('./pages'));
@@ -14,11 +16,28 @@ app.engine('html', require('ejs').renderFile);
 function get_connection(){
     return mysql.createConnection({
         host: "localhost",
-        user: "john",
-        password: "Pass1234",
+        user: "root",
+        password: "password",
         database: "mrideshare"
     });
 };
+
+var options = {
+  host: 'localhost',
+  port: '3306',
+  user: 'root',
+  password: 'password',
+  database: 'mrideshare'
+};
+
+var session_store = new MySQLStore(options);
+
+app.use(session({
+  secret: 'session_cookie_secret',
+  store: session_store,
+  resave: false,
+  saveUninitialized: false
+}));
 
 
 
@@ -48,7 +67,9 @@ app.get("/login", (req, res)  =>{
           return;
       }
 
+      req.session.username = user_username;
       console.log("fetched new user");
+      console.log("sesssion for: " + req.session.username);
       res.send("success!");
       //need some response
   });
@@ -69,6 +90,7 @@ app.post("/insert", (req, res) =>{
       }
       else{
           console.log("user created!");
+          req.session.username = user_username;
           res.send("new user created");
       }
     })
