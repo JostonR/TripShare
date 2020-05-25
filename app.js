@@ -56,7 +56,7 @@ app.get("/login", (req, res)  =>{
   console.log("connection passed maybe?");
   const user_username = req.body.login_username;
   const user_password = req.body.login_password;
-  console.log("fetching user with username: " + req.body.login_username);
+  console.log("fetching user with username: " + user_username);
   const query_string = "SELECT password FROM users WHERE email = ?";
   connection.query(query_string, [user_username], (err, results, fields) =>{
       console.log("authenticating");
@@ -69,7 +69,8 @@ app.get("/login", (req, res)  =>{
 
       req.session.username = user_username;
       console.log("fetched new user");
-      console.log("sesssion for: " + req.session.username);
+      const session_name = req.session.username;
+      console.log("sesssion for: " + session_name);
       res.send("success!");
       //need some response
   });
@@ -89,7 +90,7 @@ app.post("/insert", (req, res) =>{
           return;
       }
       else{
-          console.log("user created!");
+          console.log("user created: " + username);
           req.session.username = user_username;
           res.send("new user created");
       }
