@@ -3,7 +3,7 @@ var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 const app = express();
 const mysql = require('mysql');
-//app.use(express.static('./pages'));
+app.use(express.static('./pages'));
 const body_parser = require('body-parser');
 app.use(body_parser.urlencoded({extended: false}));
 
@@ -50,7 +50,7 @@ app.get("/welcome", (req, res) =>{
     res.render("homepage.html", {uname: "User"});
 })
 
-app.get("/login", (req, res)  =>{
+app.post("/login", (req, res)  =>{
 
   const connection = get_connection();
   console.log("connection passed maybe?");
