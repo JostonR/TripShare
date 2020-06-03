@@ -189,7 +189,7 @@ app.post("/schedule", (req, res) => {
 
   const connection = get_connection();
   const query_string = "INSERT INTO trips (userID, airline, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-  connection.query(query_string, [airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode, 1], (err, results, fields) =>{
+  connection.query(query_string, [1, airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
       if(err){
           console.log("error inserting new trip");
           res.sendStatus(500);
