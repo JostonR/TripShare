@@ -12,22 +12,29 @@ app.set('views',__dirname + '/views');
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
+/*
+sql connection options
+host: 'localhost',
+  port: '3306',
+  user: 'john',
+  password: 'Pass1234',
+  database: 'mrideshare'
+*/
 
 function get_connection(){
     return mysql.createConnection({
         host: "localhost",
-        user: "john",
-        password: "Pass1234",
+        user: "root",
+        password: "password",
         database: "mrideshare"
     });
 };
 
 var options = {
-  host: 'localhost',
-  port: '3306',
-  user: 'john',
-  password: 'Pass1234',
-  database: 'mrideshare'
+  host: "localhost",
+  user: "root",
+  password: "password",
+  database: "mrideshare"
 };
 
 var session_store = new MySQLStore(options);
@@ -50,6 +57,9 @@ app.get("/welcome", (req, res) =>{
     res.render("homepage.html", {uname: "User"});
 })
 
+//TODO on successful authentication, need to render dashboard
+//1) unsuccessful login render error page if not in system
+//2) unsuccessful login render verifcation page if account made but no verification
 app.post("/login", (req, res)  =>{
 
   const connection = get_connection();
@@ -78,6 +88,9 @@ app.post("/login", (req, res)  =>{
 
 });
 
+//TODO 
+//1) Look into email verification 
+//2) on successful registration, render to email verification page
 app.post("/insert", (req, res) =>{
     var connection = get_connection();
     const username = req.body.create_username;
