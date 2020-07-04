@@ -7,9 +7,11 @@ app.use(express.static('./pages'));
 const body_parser = require('body-parser');
 app.use(body_parser.urlencoded({extended: false}));
 
+const bcrypt = require("bcrypt");
 
-app.set('views',__dirname + '/views');
-app.set('view engine', 'ejs');
+
+app.set('views', __dirname + '/views');
+app.set('view-engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
 /*
@@ -47,15 +49,15 @@ app.use(session({
 }));
 
 
-
-app.get("/", (req, res) =>{
-    console.log("Responding to root route");
-    res.send("hello");
+//TODO move /welcome contents to this route
+app.get('/', (req, res) =>{
+    res.render('home.ejs', {message: ""});
 });
 
+//TODO change route name to be inline with html (this is not a homepage, it's landing route)
 app.get("/welcome", (req, res) =>{
     res.render("homepage.html", {uname: "User"});
-})
+});
 
 //TODO on successful authentication, need to render dashboard
 //1) unsuccessful login render error page if not in system
@@ -82,7 +84,7 @@ app.post("/login", (req, res)  =>{
       const session_name = req.session.username;
       console.log("sesssion for: " + session_name);
       console.log("ratchet version: " + req.session.username);
-      res.send("success!");
+      res.send("success!"); 
       //need some response
   });
 
@@ -91,29 +93,79 @@ app.post("/login", (req, res)  =>{
 //TODO 
 //1) Look into email verification 
 //2) on successful registration, render to email verification page
-app.post("/insert", (req, res) =>{
+app.post("/register", async(req, res) =>{
     var connection = get_connection();
     const username = req.body.create_username;
     console.log(username);
-    const password = req.body.create_password;
-    const query_string = "INSERT INTO users (email, password) VALUES (?, ?)";
-    connection.query(query_string, [username, password], (err, results, fields)=>{
+    
+    try{
+        const hashed_password = await bcrypt.hash(req.body.create_password, 5);
+        console.log(hashed_password);
+        connection.query("Select * from users", (err, rows, fields) => {
+          console.log("success");
+        });
+        const query_string = "INSERT INTO users (email, password) VALUES (?, ?)";
+        connection.query(query_string, [username, hashed_password], (err, results, fields) =>{
+          if(err){
+            res.render("error.ejs", {error: err.code});
+          }
+          else{
+            res.render("home.ejs", {message: "Please log in"});
+          }
+        });
+    } catch{
+
+    }
+    
+
+
+  
+});
+
+//TODO add additional layer of trip preferences... each trip have an id, pass the id to preferences page ith separate table in backend 
+
+app.post("/schedule", (req, res) => {
+  console.log("scheduling a trip");
+  const street_num = req.body.street_num;
+  const street_addr = req.body.street_addr;
+  const zipcode = req.body.zipcode;
+  const airline = req.body.airline;
+  //const month = get_selected_option(req.body.month);
+ // const day = get_selected_option(req.body.day);
+  const year = "2020";
+  const date = req.body.date;
+  const hour = req.body.time.substring(0, 2);
+  const min = req.body.time.substring(3,5);
+
+  const date_time = date + " " + hour + ":" + min;
+
+  const connection = get_connection();
+  const query_string = "INSERT INTO trips (userID, airline, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+  connection.query(query_string, [1, airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
       if(err){
-          console.log("error");
+          console.log("error inserting new trip");
           res.sendStatus(500);
           return;
       }
       else{
-          console.log("user created: " + username);
-          req.session.username = username;
-          const temp = req.session.username;
-          console.log("session for " + req.session.username);
-          console.log("if that didnt work: " + temp);
-          res.send("new user created");
+          console.log("trip scheduled");
+          console.log("session for: " + req.session.username);
+          res.send("trip scheduled");
+              //need to reroute
       }
-    })
+  });
 
-})
+
+});
+
+app.get("/dashboard", (req, res) =>{
+
+});
+
+
+//----------------------------------------------------------------------------------------------------------
+//Helpers
+//----------------------------------------------------------------------------------------------------------
 
 app.get("/nukeDB", (req, res) =>{
     res.render("initializeDB.html");
@@ -150,8 +202,8 @@ app.get("/init", (req, res)=>{
     })
     query_string = "create table users (" +
       "id INTEGER not NULL AUTO_INCREMENT," +
-      "email VARCHAR(50), " +
-      "password VARCHAR(50), " +
+      "email VARCHAR(100) not NULL UNIQUE, " +
+      "password VARCHAR(100) not NULL, " +
       "PRIMARY KEY(id))";
     connection.query(query_string, (err, results, fields)=>{
           if (err){
@@ -185,39 +237,6 @@ app.get("/init", (req, res)=>{
 });
 
 
-app.post("/schedule", (req, res) => {
-  console.log("scheduling a trip");
-  const street_num = req.body.street_num;
-  const street_addr = req.body.street_addr;
-  const zipcode = req.body.zipcode;
-  const airline = req.body.airline;
-  //const month = get_selected_option(req.body.month);
- // const day = get_selected_option(req.body.day);
-  const year = "2020";
-  const date = req.body.date;
-  const hour = req.body.time.substring(0, 2);
-  const min = req.body.time.substring(3,5);
-
-  const date_time = date + " " + hour + ":" + min;
-
-  const connection = get_connection();
-  const query_string = "INSERT INTO trips (userID, airline, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-  connection.query(query_string, [1, airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
-      if(err){
-          console.log("error inserting new trip");
-          res.sendStatus(500);
-          return;
-      }
-      else{
-          console.log("trip scheduled");
-          console.log("session for: " + req.session.username);
-          res.send("trip scheduled");
-              //need to reroute
-      }
-  });
-
-
-});
 
 app.listen(3000, () => {
     console.log("Server is listening");

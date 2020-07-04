@@ -6,8 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Sign Up</title>
 </head>
+<style>
+    #message{
+        color: red;
+    }
+</style>
 <body bgcolor="gold" text="navy">
-    <h1>Project X Welcome <%= uname %> </h1>
+    <h1>Project X Welcome</h1>
+    <h2 id="message"><%= message %></h2>
     <h2>Log in</h2>
     <form action="/login" method="POST">
         <div>
@@ -22,7 +28,7 @@
     </form>
 
     <h2>Sign Up</h2>
-    <form action = "/insert" method = "post">
+    <form action = "/register" method = "post">
         <div>
             <label>umich email</label>
             <input name = "create_username">
@@ -31,10 +37,7 @@
             <label>Password</label>
             <input name = "create_password">
         </div>
-        <div>
-            <label>time</label>
-            <input type = "time" name = "create_time">
-        <button>Login</button>
+        <button>Register</button>
     </form>
 </body>
 </html>
