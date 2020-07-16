@@ -13,6 +13,9 @@
 </style>
 <body bgcolor="gold" text="navy">
     <h1>Project X Welcome</h1>
+    <% if (message.error){%>
+        <%= messages.error %>
+        <% } %>
     <h2 id="message"><%= message %></h2>
     <h2>Log in</h2>
     <form action="/login" method="POST">

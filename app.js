@@ -1,12 +1,57 @@
+if(process.env.NODE_ENV !== 'production'){
+  require("dotenv").config();
+}
+
 const express = require('express');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 const app = express();
 const mysql = require('mysql');
 app.use(express.static('./pages'));
-const body_parser = require('body-parser');
+const body_parser = require("body-parser");
 app.use(body_parser.urlencoded({extended: false}));
 
+const flash = require("express-flash");
+
+const passport = require("passport");
+const initializePassport = require("./passport-config");
+console.log("1) debugging purposes.");
+initializePassport(passport, login_username => {
+  //return users.find(user => user.login_username === login_username);
+  console.log("user in appjs: " + login_username);
+  const connect = get_connection();
+  const query = "SELECT password from users WHERE email = ?";
+  console.log("create sql query in login");
+  connect.query(query, [login_username], (err, rows) =>{
+    console.log("authenticating");
+    if(err){
+        console.log("error" + err + " error");
+        console.log("login passport has error");
+        res.sendStatus(500);
+        res.end();
+    }
+    else if(!rows.length){
+      console.log("IP: no user found");
+        return null;
+    }
+    else{
+      console.log("db retrieval success!");
+      console.log(rows[0].email);
+      return rows[0];
+    }
+
+    });
+});
+
+app.use(flash());
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 const bcrypt = require("bcrypt");
 
 
@@ -59,9 +104,16 @@ app.get("/welcome", (req, res) =>{
     res.render("homepage.html", {uname: "User"});
 });
 
+
+app.post("/login", passport.authenticate("local", {
+  successRedirect: "/dashboard.html",
+  failureRedirect: "/login",
+  failureFlash: true
+}));
 //TODO on successful authentication, need to render dashboard
 //1) unsuccessful login render error page if not in system
 //2) unsuccessful login render verifcation page if account made but no verification
+/*
 app.post("/login", (req, res)  =>{
 
   const connection = get_connection();
@@ -89,7 +141,7 @@ app.post("/login", (req, res)  =>{
   });
 
 });
-
+*/
 //TODO 
 //1) Look into email verification 
 //2) on successful registration, render to email verification page
@@ -101,9 +153,6 @@ app.post("/register", async(req, res) =>{
     try{
         const hashed_password = await bcrypt.hash(req.body.create_password, 5);
         console.log(hashed_password);
-        connection.query("Select * from users", (err, rows, fields) => {
-          console.log("success");
-        });
         const query_string = "INSERT INTO users (email, password) VALUES (?, ?)";
         connection.query(query_string, [username, hashed_password], (err, results, fields) =>{
           if(err){
