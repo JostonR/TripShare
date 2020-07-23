@@ -2,47 +2,63 @@ if(process.env.NODE_ENV !== 'production'){
   require("dotenv").config();
 }
 
+
 const express = require('express');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 const app = express();
+
+app.use(function(req, res, next){
+  if (!req.user)
+      res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  next();
+});
+
+
 const mysql = require('mysql');
 app.use(express.static('./pages'));
 const body_parser = require("body-parser");
 app.use(body_parser.urlencoded({extended: false}));
+const LocalStrategy = require('passport-local').Strategy;
 
 const flash = require("express-flash");
 
+const method_override = require("method-override");
+app.use(method_override("_method"));
+
 const passport = require("passport");
 const initializePassport = require("./passport-config");
-console.log("1) debugging purposes.");
-initializePassport(passport, login_username => {
-  //return users.find(user => user.login_username === login_username);
-  console.log("user in appjs: " + login_username);
+
+initializePassport(passport);
+
+
+/*
+passport.use(new LocalStrategy({usernameField: 'login.username', passwordField: 'login_password'}, 
+              function(login_username, login_password, done){
+  console.log("testing do we hit localstrat");
   const connect = get_connection();
   const query = "SELECT password from users WHERE email = ?";
-  console.log("create sql query in login");
   connect.query(query, [login_username], (err, rows) =>{
     console.log("authenticating");
     if(err){
-        console.log("error" + err + " error");
-        console.log("login passport has error");
-        res.sendStatus(500);
-        res.end();
+        return done(err);
     }
     else if(!rows.length){
-      console.log("IP: no user found");
-        return null;
+      console.log("configp: no email found");
+        return done(null, false);
+    }
+    else if(rows.length[0].password != login_password){
+        console.log("password wrong");
+        return done(null, false);
     }
     else{
-      console.log("db retrieval success!");
-      console.log(rows[0].email);
-      return rows[0];
+      console.log("user found!");
+      return done(null,rows[0]);
     }
-
     });
-});
 
+}));
+*/
 app.use(flash());
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -59,14 +75,6 @@ app.set('views', __dirname + '/views');
 app.set('view-engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
-/*
-sql connection options
-host: 'localhost',
-  port: '3306',
-  user: 'john',
-  password: 'Pass1234',
-  database: 'mrideshare'
-*/
 
 function get_connection(){
     return mysql.createConnection({
@@ -95,7 +103,7 @@ app.use(session({
 
 
 //TODO move /welcome contents to this route
-app.get('/', (req, res) =>{
+app.get('/', check_authenticated, (req, res) =>{
     res.render('home.ejs', {message: ""});
 });
 
@@ -106,8 +114,8 @@ app.get("/welcome", (req, res) =>{
 
 
 app.post("/login", passport.authenticate("local", {
-  successRedirect: "/dashboard.html",
-  failureRedirect: "/login",
+  successRedirect: "/dashboard",
+  failureRedirect: "/",
   failureFlash: true
 }));
 //TODO on successful authentication, need to render dashboard
@@ -151,7 +159,7 @@ app.post("/register", async(req, res) =>{
     console.log(username);
     
     try{
-        const hashed_password = await bcrypt.hash(req.body.create_password, 5);
+        const hashed_password = await bcrypt.hash(req.body.create_password, parseInt(process.env.HASHED_TIMES));
         console.log(hashed_password);
         const query_string = "INSERT INTO users (email, password) VALUES (?, ?)";
         connection.query(query_string, [username, hashed_password], (err, results, fields) =>{
@@ -190,7 +198,7 @@ app.post("/schedule", (req, res) => {
 
   const connection = get_connection();
   const query_string = "INSERT INTO trips (userID, airline, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-  connection.query(query_string, [1, airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
+  connection.query(query_string, [req.user.id, airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
       if(err){
           console.log("error inserting new trip");
           res.sendStatus(500);
@@ -200,21 +208,30 @@ app.post("/schedule", (req, res) => {
           console.log("trip scheduled");
           console.log("session for: " + req.session.username);
           res.send("trip scheduled");
-              //need to reroute
+          //TODO: New Modal that says Trip Scheduled with X bar
       }
   });
 
 
 });
 
-app.get("/dashboard", (req, res) =>{
+app.get("/dashboard", check_not_authenticated, (req, res) =>{
+  res.render("dashboard.ejs");
+});
 
+app.get("/debug", (req,res) => {
+  res.render("dashboard.ejs");
 });
 
 
 //----------------------------------------------------------------------------------------------------------
-//Helpers
+//Helpers Routes
 //----------------------------------------------------------------------------------------------------------
+
+app.delete("/logout", (req,res) =>{
+  req.logOut();
+  res.redirect("/");
+});
 
 app.get("/nukeDB", (req, res) =>{
     res.render("initializeDB.html");
@@ -290,3 +307,25 @@ app.get("/init", (req, res)=>{
 app.listen(3000, () => {
     console.log("Server is listening");
 });
+
+//----------------------------------------------------------------------------------------------------------
+//Helpers Functions
+//----------------------------------------------------------------------------------------------------------
+
+function check_authenticated(req, res, next){
+  if(!req.isAuthenticated()){
+    return next();
+  }
+  else{
+    res.redirect("/dashboard");
+  }
+}
+
+function check_not_authenticated(req, res, next){
+  if(req.isAuthenticated()){
+    next();
+  }
+  else{
+    res.redirect("/");
+  }
+}

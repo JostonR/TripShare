@@ -9,14 +9,14 @@
 <body bgcolor="gold" text="navy">
     <h1>Project X</h1>
     <h2>Log in</h2>
-    <form action="/login" method="GET">
+    <form action="/login" method="POST">
         <div>
             <label>Username</label>
-            <input name="login_username">
+            <input name="login_username" required>
         </div>
         <div>
             <label>Password</label>
-            <input name="login_password">
+            <input name="login_password" required>
         </div>
         <button>Login</button>
     </form>
@@ -25,11 +25,11 @@
     <form action="/register" method="POST">
         <div>
             <label>umich email</label>
-            <input name="create_username">
+            <input name="create_username" required>
         </div>
         <div>
             <label>Password</label>
-            <input name="create_password">
+            <input name="create_password" required>
         </div>
         <button>Signup</button>
     </form>
