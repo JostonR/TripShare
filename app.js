@@ -153,7 +153,7 @@ app.post("/register", async(req, res) =>{
 
 //TODO add additional layer of trip preferences... each trip have an id, pass the id to preferences page ith separate table in backend 
 
-app.post("/schedule", check_authenticated, (req, res) => {
+app.post("/schedule", check_not_authenticated, (req, res) => {
   console.log("scheduling a trip");
   const street_num = req.body.street_num;
   const street_addr = req.body.street_addr;
@@ -178,7 +178,6 @@ app.post("/schedule", check_authenticated, (req, res) => {
       }
       else{
           console.log("trip scheduled");
-          console.log("session for: " + req.session.username);
           res.send("trip scheduled");
           //TODO: New Modal that says Trip Scheduled with X bar
       }
@@ -188,6 +187,7 @@ app.post("/schedule", check_authenticated, (req, res) => {
 });
 
 app.get("/dashboard", check_not_authenticated, (req, res) =>{
+  
   var connection = get_connection();
   var query_string = "SELECT * FROM Trips WHERE userID= ?";
   connection.query(query_string, [req.user.id], (err, data, fields)=>{
@@ -201,6 +201,8 @@ app.get("/dashboard", check_not_authenticated, (req, res) =>{
         res.render("dashboard.ejs", {user_trip_data: data});
       }
   });
+  
+ //res.render("dashboard_backup.ejs");
 });
 
 
@@ -284,7 +286,7 @@ app.get("/init", (req, res)=>{
             console.log("success");
           }
       })
-      res.redirect()
+      res.redirect();
 });
 
 

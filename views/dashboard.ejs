@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <head>  
 <title>Dashboard</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
 </head>
 
 <html>
@@ -95,23 +92,26 @@
 /* User Trip Data */
 
     .user-trip-div{
-        position:relative;
-        left:15px;
-        top:215px;
-        height: 220px;
-        width:471px;
+
+        position: relative;
+        width: 471px;
+        height: 151px;
+        left: 0px;
+        top: 221px;
+        overflow-y: auto;
     }
 
     .user-trip-col{
         padding: 10px;
+
     }
 
     #user-trip-table{
         overflow:auto;
+        color: #2A3592;
     }
 
     
-
 
 /* User Trip Data end*/
 
@@ -197,6 +197,40 @@
     </form>
 
 
+        <!--
+        *************************************************************
+        User Trips
+        *************************************************************
+    -->
+
+
+
+    <div class="user-trip-div">
+        <table id="user-trip-table">
+            <tr>
+                <th align="left" class=user-trip-col>Date & Airport Departure Time</th>
+                <th align="left" class=user-trip-col>Destination</th>
+                <th align="right" class=user-trip-col>Airline</th>
+            </tr>
+            <%
+            if(user_trip_data.length!=0){
+                var i = 1;
+                user_trip_data.forEach(function(data){
+                %>
+                <tr>
+                    <td><%=data.calendarInfo%></td>
+                    <td><%=data.streetNum + " " + data.streetName%></td>
+                    <td><%=data.airline%></td>
+                </tr>
+                <% i++; }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="3"> No data Found</td>
+                    </tr>
+                <% } %>
+        </table>
+    </div>
+
     <!--
         *************************************************************
         Schedule Trip Modal
@@ -279,31 +313,6 @@
         </div>
     </div>
 
-
-    <div class="user-trip-div">
-        <table id="user-trip-table">
-            <tr>
-                <th>Date & Airport Departure Time</th>
-                <th class=user-trip-col>Destination</th>
-                <th class=user-trip-col>Airline</th>
-            </tr>
-            <%
-            if(user_trip_data.length!=0){
-                var i = 1;
-                user_trip_data.forEach(function(data){
-                %>
-                <tr>
-                    <td><%=data.calendarInfo%></td>
-                    <td><%=data.streetNum + " " + data.streetName%></td>
-                    <td><%=data.airline%></td>
-                </tr>
-                <% i++; }) %>
-                <% }else{ %>
-                    <tr>
-                        <td colspan="3"> No data Found</td>
-                    </tr>
-                <% } %>
-        </table>
-    </div>
 </body>
 </html>
+
