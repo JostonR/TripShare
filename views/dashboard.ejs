@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <head>  
 <title>Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
 </head>
 
 <html>
@@ -8,12 +11,18 @@
 <style>
     .header {
         background-color: #E1C323;
+        color: #2A3592;
+        text-align: center;
+        font-size: 30px;
     }
 
     .content{
         background-color: #E3DFDF;
     }
-
+    /**********************************
+    Style related to the Schedule Trip Modal
+    ***********************************/
+    
     .trip-modal{
         width: 100%;
         height: 100%;
@@ -52,6 +61,59 @@
         text-align: center;
         color: #2A3592;
     }
+
+    #schedule_new_trip_button{
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        -webkit-border-radius: 25px;
+        -moz-border-radius: 25px;
+        border-radius: 25px;
+        left: 392px;
+        top: 376px;
+        background: #E1C323;
+        text-align: center;
+        color: #2A3592;
+        font-size: 42px;
+        cursor: pointer;
+    }
+
+    #matching_results_content{
+        position: absolute;
+        width: 926px;
+        height: 782px;
+        left: 514px;
+        top: 222px;
+
+    }
+
+    /********************************************
+    Style related to the Schedule Trip Modal Ends
+    *********************************************/
+
+
+/* User Trip Data */
+
+    .user-trip-div{
+        position:relative;
+        left:15px;
+        top:215px;
+        height: 220px;
+        width:471px;
+    }
+
+    .user-trip-col{
+        padding: 10px;
+    }
+
+    #user-trip-table{
+        overflow:auto;
+    }
+
+    
+
+
+/* User Trip Data end*/
 
     #scheduled_trips{
       /* Rectangle 1 */
@@ -94,15 +156,6 @@
         top: 512px;
     }
 
-    #matching_results_content{
-        position: absolute;
-        width: 926px;
-        height: 782px;
-        left: 514px;
-        top: 222px;
-
-    }
-
     #header_band{
         position: absolute;
         width: 1440px;
@@ -126,8 +179,8 @@
         Showing results for XYZ trip based on preferences
     </div>
 
+
     <div id="scheduled_trips_content" class="content">
-        Placeholder for scheduled trips from db
     </div>
 
     <div id="quick_add_content" class="content">
@@ -144,9 +197,37 @@
     </form>
 
 
+    <!--
+        *************************************************************
+        Schedule Trip Modal
+        *************************************************************
+    -->
+    <div id="schedule_new_trip_button"class="schedule_button" title="schedule new trip">
+        +
+        <script type="text/javascript">
+            const div = document.getElementById('schedule_new_trip_button');
+            div.addEventListener('click', function() {
+                document.querySelector(".trip-modal").style.display = "flex";
+            });
+        </script>
+
+        <!--WHY DOESN"T THIS WORK
+        <script src='../schedule.js'> 
+        </script>
+        -->        
+
+    </div>
+
     <div class="trip-modal">
         <div class="trip_modal_content">
-            <div class="close">+</div>
+            <div class="close" id="schedule_close">+
+                <script type="text/javascript">
+                    const close = document.getElementById('schedule_close');
+                    close.addEventListener('click', function(){
+                        document.querySelector(".trip-modal").style.display = "none";
+                    }); 
+                </script>
+            </div>
             <div class="trip_title">
                 <h1>Schedule a Trip</h1>
             </div>
@@ -198,5 +279,31 @@
         </div>
     </div>
 
+
+    <div class="user-trip-div">
+        <table id="user-trip-table">
+            <tr>
+                <th>Date & Airport Departure Time</th>
+                <th class=user-trip-col>Destination</th>
+                <th class=user-trip-col>Airline</th>
+            </tr>
+            <%
+            if(user_trip_data.length!=0){
+                var i = 1;
+                user_trip_data.forEach(function(data){
+                %>
+                <tr>
+                    <td><%=data.calendarInfo%></td>
+                    <td><%=data.streetNum + " " + data.streetName%></td>
+                    <td><%=data.airline%></td>
+                </tr>
+                <% i++; }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="3"> No data Found</td>
+                    </tr>
+                <% } %>
+        </table>
+    </div>
 </body>
 </html>

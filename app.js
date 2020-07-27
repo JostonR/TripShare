@@ -31,34 +31,6 @@ const initializePassport = require("./passport-config");
 
 initializePassport(passport);
 
-
-/*
-passport.use(new LocalStrategy({usernameField: 'login.username', passwordField: 'login_password'}, 
-              function(login_username, login_password, done){
-  console.log("testing do we hit localstrat");
-  const connect = get_connection();
-  const query = "SELECT password from users WHERE email = ?";
-  connect.query(query, [login_username], (err, rows) =>{
-    console.log("authenticating");
-    if(err){
-        return done(err);
-    }
-    else if(!rows.length){
-      console.log("configp: no email found");
-        return done(null, false);
-    }
-    else if(rows.length[0].password != login_password){
-        console.log("password wrong");
-        return done(null, false);
-    }
-    else{
-      console.log("user found!");
-      return done(null,rows[0]);
-    }
-    });
-
-}));
-*/
 app.use(flash());
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -181,7 +153,7 @@ app.post("/register", async(req, res) =>{
 
 //TODO add additional layer of trip preferences... each trip have an id, pass the id to preferences page ith separate table in backend 
 
-app.post("/schedule", (req, res) => {
+app.post("/schedule", check_authenticated, (req, res) => {
   console.log("scheduling a trip");
   const street_num = req.body.street_num;
   const street_addr = req.body.street_addr;
@@ -216,11 +188,24 @@ app.post("/schedule", (req, res) => {
 });
 
 app.get("/dashboard", check_not_authenticated, (req, res) =>{
-  res.render("dashboard.ejs");
+  var connection = get_connection();
+  var query_string = "SELECT * FROM Trips WHERE userID= ?";
+  connection.query(query_string, [req.user.id], (err, data, fields)=>{
+      if (err){
+        console.log("Error showing user's trips");
+        throw err;
+      }
+      else{
+        console.log("showing user trips with id: " + req.user.id);
+        console.log("req length is: " + data.length);
+        res.render("dashboard.ejs", {user_trip_data: data});
+      }
+  });
 });
 
-app.get("/debug", (req,res) => {
-  res.render("dashboard.ejs");
+
+app.get("/schedule_modal", (req, res) => {
+
 });
 
 
@@ -329,3 +314,21 @@ function check_not_authenticated(req, res, next){
     res.redirect("/");
   }
 }
+
+/* Cannot get proporty so implement within dashboard route
+function show_scheduled_trips(req, res){
+  var connection = get_connection();
+  var query_string = "SELECT * FROM Trips WHERE userID= ?";
+  connection.query(query_string, [req.user.id], (err, data, fields)=>{
+      if (err){
+        console.log("Error showing user's trips");
+        throw err;
+      }
+      else{
+        console.log("showing user trips");
+        res.render("dashboard.ejs", {user_trip_data: data});
+        return data;
+      }
+  });
+}
+*/
