@@ -115,6 +115,18 @@
 
 /* User Trip Data end*/
 
+/*************************************************************
+Search Trip Mates
+*************************************************************/
+
+    #search_airline{
+        text-align-last: center;
+        text-align: center;
+        -ms-text-align-last: center;
+        -moz-text-align-last: center;
+    }
+ 
+
     #scheduled_trips{
       /* Rectangle 1 */
         position: absolute;
@@ -176,7 +188,7 @@
     </div>
 
     <div id="matching_results" class="header">
-        Showing results for XYZ trip based on preferences
+        Search for other UMich Riders
     </div>
 
 
@@ -187,9 +199,6 @@
         Placeholder for people who have been added to click add
     </div>
 
-    <div id="matching_results_content" class="content">
-        Placeholder for matching people based on preferences
-    </div>
 
 
     <form id="header_band" action="/logout?_method=DELETE" method="POST">
@@ -252,6 +261,48 @@
 
     </div>
 
+    <!--
+        *************************************************************
+        Search Trip Mates
+        *************************************************************
+    -->
+
+    <div id="matching_results_content" class="content">
+        <div class="schedule_trip_form">
+            <form action="/search" method="GET">
+                <h2>Required Parameter</h2>
+                <h3>Date</h3>
+                <input type="date" id="search_date" name="search_date" min="2020-01-01" max="2020-12-31" required><br></br>
+                <h2>Optional Parameters</h2>
+                <h3>Airline</h3>
+                <div class="search_airlines">
+                <select id= "search_airline" name="search_airline" required>
+                    <label>Airline</label>
+                    <h4>airline</h4>
+                    <option value = "Any">Any</option>
+                    <option value = "Delta">Delta</option>
+                    <option value = "American Airlines">American Airlines</option>
+                    <option value = "United Airlines">United Airlines</option>
+                    <option value = "Southwest Airlines">Southwest Airlines</option>
+                    <option value = "Spirit">Spirit</option>
+                    <option value = "JetBlue">JetBlue</option>
+                    <option value = "Other">Other</option>
+                </select>
+                <h3>Time frame of departure</h3>
+                <div>
+                    From<input type="time" name="search_start_time" placeholder="hrs:mins"/><br></br>
+                    To<input type="time" name="search_end_time" placeholder="hrs:mins"/><br></br> 
+                </div>
+                <br></br>  
+                <input type=submit value="Search">              
+                </div> 
+            </form>
+        </div>
+    </div>
+
+
+
+
     <div class="trip-modal">
         <div class="trip_modal_content">
             <div class="close" id="schedule_close">+
@@ -300,7 +351,7 @@
                     </div>
                     <br></br>
                     <h3>Estimate Departure Time</h3>
-                    <h4>What time are you planning to getting into a mode of transportation to leave the airport? (hrs:min, am/pm)</h4>
+                    <h4>What time are you planning to get into a mode of transportation to leave the airport? (hrs:min, am/pm)</h4>
                     <div>
                         <input type="time" name="time" placeholder="hrs:mins" required/>
                     </div>
