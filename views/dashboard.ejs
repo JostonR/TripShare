@@ -217,7 +217,7 @@ Search Trip Mates
     <div class="user-trip-div">
         <table id="user-trip-table">
             <tr>
-                <th align="left" class=user-trip-col>Date & Airport Departure Time</th>
+                <th align="left" class=user-trip-col>Date & Depart Time</th>
                 <th align="left" class=user-trip-col>Destination</th>
                 <th align="right" class=user-trip-col>Airline</th>
             </tr>
@@ -227,7 +227,7 @@ Search Trip Mates
                 user_trip_data.forEach(function(data){
                 %>
                 <tr>
-                    <td><%=data.calendarInfo%></td>
+                    <td><%=data.calendarInfo.toLocaleString()%></td>
                     <td><%=data.streetNum + " " + data.streetName%></td>
                     <td><%=data.airline%></td>
                 </tr>

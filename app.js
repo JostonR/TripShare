@@ -165,14 +165,18 @@ app.post("/schedule", check_not_authenticated, (req, res) => {
   const date = req.body.date;
   const hour = req.body.time.substring(0, 2);
   const min = req.body.time.substring(3,5);
-
+  const time = req.body.time + ":00";
+  console.log("date format is: " + date);
+  console.log("time format is: " + hour + " hours and " + min + " minutes");
+  console.log("raw time: " + req.body.time);
   const date_time = date + " " + hour + ":" + min;
 
   const connection = get_connection();
-  const query_string = "INSERT INTO trips (userID, airline, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-  connection.query(query_string, [req.user.id, airline, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
+  const query_string = "INSERT INTO trips (userID, airline, date, time, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  connection.query(query_string, [req.user.id, airline, date, time, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
       if(err){
           console.log("error inserting new trip");
+          console.log(err);
           res.sendStatus(500);
           return;
       }
@@ -198,6 +202,7 @@ app.get("/dashboard", check_not_authenticated, (req, res) =>{
       else{
         console.log("showing user trips with id: " + req.user.id);
         console.log("req length is: " + data.length);
+        console.log("date is: " + data[0].date.toLocaleString());
         res.render("dashboard.ejs", {user_trip_data: data});
       }
   });
@@ -270,6 +275,8 @@ app.get("/init", (req, res)=>{
                   "id INTEGER not NULL AUTO_INCREMENT," +
                   "userID INTEGER," +
                   "airline VARCHAR(50)," +
+                  "date DATE," + 
+                  "time TIME," +
                   "calendarInfo DATETIME," +
                   "streetNum INTEGER," +
                   "streetName VARCHAR(50)," +
