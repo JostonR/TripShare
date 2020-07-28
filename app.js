@@ -211,6 +211,10 @@ app.get("/dashboard", check_not_authenticated, (req, res) =>{
 });
 
 
+app.get("/search", (req, res) =>{
+  res.render("search_results.ejs");
+});
+
 app.get("/schedule_modal", (req, res) => {
 
 });

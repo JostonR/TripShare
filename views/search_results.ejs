@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<head>
+    <title>Search Results</title>
+</head>
+
+<style>
+    .header{
+        color: #2A3592;
+        text-align: center;
+        font-size: 30px;
+    }
+
+    #top-header{
+        position: absolute;
+        width: 1440px;
+        height: 65px;
+        left: 0px;
+        top: 65px;
+
+        background: #E1C323;
+    }
+
+    #search-body{
+        position: absolute;
+        width: 1440px;
+        height: 768px;
+        left: 0px;
+        top: 222px;
+        background: #E3DFDF;    
+    }
+
+    #results-header{
+        position: absolute;
+        width: 1440px;
+        height: 39px;
+        left: 0px;
+        top: 183px;
+
+        background: #E1C323;
+    }
+
+    #return-dashboard{
+        position: absolute;
+        width: 380px;
+        height: 38px;
+        left: 0px;
+        top: 241px;
+
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 24px;
+        line-height: 28px;
+        text-align: center;
+
+        color: #2A3592;
+    }
+
+    #edit-search{
+        position: absolute;
+        width: 380px;
+        height: 38px;
+        left: 530px;
+        top: 238px;
+
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 24px;
+        line-height: 28px;
+        text-align: center;
+
+        color: #2A3592;
+    }
+
+    #search-results-div{
+        position: absolute;
+        width: 1440px;
+        height: 669px;
+        left: 0px;
+        top: 295px;
+        overflow-y: auto;
+    }
+
+    #trip-results{
+        padding: 75px;
+    }
+
+    #results-table{
+        color: #2A3592;
+        font-size: 25px;
+    }
+</style>
+
+<html>
+<body bgcolor=#2A3592>
+    <div id="top-header">
+        <!--Logout goes here-->
+    </div>
+
+    <div id="results-header" class="header">Showing results for</div>
+
+    <div id="search-body">
+    </div>
+
+    <div id="return-dashboard">Back to Dashboard</div>
+
+    <div id="edit-search">Edit Search Criteria</div>
+
+    <div id="search-results-div">
+        <table id="results-table">
+            <tr>
+                <th id="trip-results">Quick Add</th>
+                <th id="trip-results">Airport Departure Time</th>
+                <th id="trip-results">Airline</th>
+                <th id="trip-results">uniqname</th>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
