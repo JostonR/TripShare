@@ -231,7 +231,7 @@ Search Trip Mates
                     <td><%=data.streetNum + " " + data.streetName%></td>
                     <td><%=data.airline%></td>
                 </tr>
-                <% i++; }) %>
+                <% i++; }); %>
                 <% }else{ %>
                     <tr>
                         <td colspan="3"> No data Found</td>
@@ -269,7 +269,7 @@ Search Trip Mates
 
     <div id="matching_results_content" class="content">
         <div class="schedule_trip_form">
-            <form action="/search" method="GET">
+            <form action="/search" method="POST">
                 <h2>Required Parameter</h2>
                 <h3>Date</h3>
                 <input type="date" id="search_date" name="search_date" min="2020-01-01" max="2020-12-31" required><br></br>

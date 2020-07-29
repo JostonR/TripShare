@@ -200,9 +200,6 @@ app.get("/dashboard", check_not_authenticated, (req, res) =>{
         throw err;
       }
       else{
-        console.log("showing user trips with id: " + req.user.id);
-        console.log("req length is: " + data.length);
-        console.log("date is: " + data[0].date.toLocaleString());
         res.render("dashboard.ejs", {user_trip_data: data});
       }
   });
@@ -211,8 +208,64 @@ app.get("/dashboard", check_not_authenticated, (req, res) =>{
 });
 
 
-app.get("/search", (req, res) =>{
-  res.render("search_results.ejs");
+app.post("/search", (req, res) =>{
+  var date = req.body.search_date;
+  var airline = req.body.search_airline;
+  var start_time = req.body.search_start_time;
+  var end_time = req.body.search_end_time;
+  console.log("date: " + date);
+  console.log("airline: " + airline);
+  console.log("start_time: " + req.body.search_start_time);
+  console.log(req.body.search_start_time);
+  console.log("end_time: " + end_time);
+
+  if(req.body.search_start_time == ""){
+    console.log("start_time is empty");
+  }
+  var search_criteria =[];
+  search_criteria.push(date);
+  var additional_params = 0;
+  var connection = get_connection();
+  var query_string = "SELECT * FROM Trips Where date = ?";
+  if(airline != "Any"){
+    query_string += " AND airline= ?";
+    search_criteria.push(airline);
+  }
+  if(start_time != ""){
+    query_string += " AND time >= ?";
+    search_criteria.push(start_time);
+  }
+
+  if(end_time != ""){
+    query_string += " AND time <= ?";
+    search_criteria.push(end_time);
+  }
+
+  connection.query(query_string, search_criteria, (err, data, fields) =>{
+    if(err){
+      console.log("error showing search critera");
+      console.log(err);
+      throw err;
+    }
+    else{
+      var user_info;
+      connection.query("SELECT * FROM users", [], (err, results)=>{
+        if(err){
+          console.log("cant get users for search results");
+          console.log(err);
+          throw err;
+        }
+        else{
+          user_info = results;
+          var header = "Showing results for";
+          //for(var i = 0; i < )
+          res.render("search_results.ejs", {search_results_data: data, user_table: user_info, criteria: search_criteria});
+        }
+      });
+    }
+  });
+  
+  //res.render("search_results.ejs");
 });
 
 app.get("/schedule_modal", (req, res) => {
@@ -243,7 +296,7 @@ app.get("/init", (req, res)=>{
         else{
           console.log("success");
         }
-    })
+    });
     query_string = "create database mrideshare;";
     connection.query(query_string, (err, results, fields)=>{
         if (err){
@@ -252,7 +305,7 @@ app.get("/init", (req, res)=>{
         else{
           console.log("success");
         }
-    })
+    });
     query_string = "USE mrideshare";
     connection.query(query_string, (err, results, fields)=>{
         if (err){
@@ -261,7 +314,7 @@ app.get("/init", (req, res)=>{
         else{
           console.log("success");
         }
-    })
+    });
     query_string = "create table users (" +
       "id INTEGER not NULL AUTO_INCREMENT," +
       "email VARCHAR(100) not NULL UNIQUE, " +
@@ -274,7 +327,7 @@ app.get("/init", (req, res)=>{
           else{
             console.log("success");
           }
-    })
+    });
     query_string = "create table trips (" +
                   "id INTEGER not NULL AUTO_INCREMENT," +
                   "userID INTEGER," +
@@ -296,7 +349,7 @@ app.get("/init", (req, res)=>{
           else{
             console.log("success");
           }
-      })
+      });
       res.redirect();
 });
 
