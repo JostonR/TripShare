@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<head>  
+<title>Dashboard</title>
+</head>
+
+<html>
+
+<style>
+    .header {
+        background-color: #E1C323;
+        color: #2A3592;
+        text-align: center;
+        font-size: 30px;
+    }
+
+    .content{
+        background-color: #E3DFDF;
+    }
+    /**********************************
+    Style related to the Schedule Trip Modal
+    ***********************************/
+    
+    .trip-modal{
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.7);
+        position: absolute;
+        top: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        display: none;
+    }
+
+    .trip_modal_content{
+        width: 1000px;
+        height: 800px;
+        background-color: #E1C323;
+        border-radius: 4px;
+        position:relative;
+    }
+
+    .close{
+        position: absolute;
+        top:0;
+        right: 14px;
+        font-size: 42px;
+        transform: rotate(45deg);
+        cursor: pointer;
+    }
+
+    .trip_title{
+        text-align: center;
+        color: #2A3592;
+    }
+
+    .schedule_trip_form{
+        text-align: center;
+        color: #2A3592;
+    }
+
+    #schedule_new_trip_button{
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        -webkit-border-radius: 25px;
+        -moz-border-radius: 25px;
+        border-radius: 25px;
+        left: 560px;
+        top: 400px;
+        background: #E1C323;
+        text-align: center;
+        color: #2A3592;
+        font-size: 42px;
+        cursor: pointer;
+    }
+
+
+    /********************************************
+    Style related to the Schedule Trip Modal Ends
+    *********************************************/
+
+
+/* User Trip Data */
+
+    .user-trip-div{
+        position: relative;
+        width: 471px;
+        height: 151px;
+        left: 0px;
+        top: 190px;
+        overflow-y: auto;
+    }
+
+    .user-trip-col{
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+    .destination{
+        /*padding: 40px;*/
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+    .delete-trip{
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    #user-trip-table{
+        overflow:auto;
+        color: #2A3592;
+    }
+    #user-trips{
+        overflow:auto;
+        color: #2A3592;
+        border-spacing: 0 15px;
+    }
+    .user-trip-div-again{
+        position: relative;
+        width: 644px;
+        height: 157px;
+        left: 0px;
+        top: 210px;
+
+    }
+
+    
+
+/* User Trip Data end*/
+
+/*************************************************************
+Search Trip Mates
+*************************************************************/
+    #matching_results_content{
+        position: absolute;
+        width: 738px;
+        height: 782px;
+        left: 702px;
+        top: 222px;
+    }
+
+    #matching_results{
+        position: absolute;
+        width: 738px;
+        height: 39px;
+        left: 702px;
+        top: 183px;
+    }
+
+    #search_airline{
+        text-align-last: center;
+        text-align: center;
+        -ms-text-align-last: center;
+        -moz-text-align-last: center;
+    }
+ 
+
+    #scheduled_trips{
+      /* Rectangle 1 */
+        position: absolute;
+        width: 644px;
+        height: 39px;
+        left: 0px;
+        top: 183px;  
+    }
+
+    #quick_add{
+        position: absolute;
+        width: 471px;
+        height: 39px;
+        left: 0px;
+        top: 473px;
+    }
+
+    #scheduled_trips_content{
+        position: absolute;
+        width: 644px;
+        height: 236px;
+        left: 0px;
+        top: 222px;
+    }
+
+    #quick_add_content{
+        position: absolute;
+        width: 471px;
+        height: 492px;
+        left: 0px;
+        top: 512px;
+    }
+
+    #header_band{
+        position: absolute;
+        width: 1440px;
+        height: 65px;
+        left: 0px;
+        top: 65px;
+        background: #E1C323;
+    }
+
+</style>
+<body bgcolor=#2A3592>
+    <div id="scheduled_trips" class="header">
+        Trips Scheduled
+    </div>
+
+    <div id="quick_add" class="header">
+        Quick add for XYZ trip
+    </div>
+
+    <div id="matching_results" class="header">
+        Search for other UMich Riders
+    </div>
+
+
+    <div id="scheduled_trips_content" class="content">
+    </div>
+
+    <div id="quick_add_content" class="content">
+        Placeholder for people who have been added to click add
+    </div>
+
+
+
+    <form id="header_band" action="/logout?_method=DELETE" method="POST">
+        <button>Logout</button>
+    </form>
+
+
+        <!--
+        *************************************************************
+        User Trips
+        *************************************************************
+    -->
+
+<!--
+    <div class="user-trip-div">
+        <table id="user-trip-table">
+            <tr>
+                <th align="left" class="=user-trip-col">Delete Trip</th>
+                <th align="left" class=user-trip-col>Date & Depart Time</th>
+                <th align="left" class=user-trip-col>Destination</th>
+                <th align="left" class=user-trip-col>Airline</th>
+            </tr>
+            <%
+            if(user_trip_data.length!=0){
+                var i = 1;
+                user_trip_data.forEach(function(data){
+                %>
+                <tr>
+                    <td>+</td>
+                    <td><%=data.calendarInfo.toLocaleString()%></td>
+                    <td><%=data.streetNum + " " + data.streetName%></td>
+                    <td><%=data.airline%></td>
+                </tr>
+                <% i++; }); %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="4"> No data Found</td>
+                    </tr>
+                <% } %>
+        </table>
+    </div>
+-->
+
+<div class="user-trip-div-again">
+    <table id="user-trips">
+        <tr>
+            <th align="center" class="delete-trip">Edit/Delete Trip</th>
+            <th align="center" class="user-trip-col">Date & Depart Time</th>
+            <th align="center" class="destination">Destination</th>
+            <th align="center" >Airline</th>
+            <th align="center" class="delete-trip">Rider Capacity</th>
+        </tr>
+        <%
+        if(user_trip_data.length!=0){
+            var i = 1;
+            user_trip_data.forEach(function(data){
+            %>
+            <tr>
+                <% var id = data.id 
+                var div_id = "edit-delete-trip-" + i.toString(); 
+                %>
+                <td align="center">
+                    <div id= <%=div_id%>>
+                        <img src="https://img.icons8.com/pastel-glyph/64/000000/edit.png"/ witdth ="30" height="30"></td>
+                    
+                    <script type="text/javascript">
+                        //div = document.getElementsByClassName("edit-delete-trip");
+                        div = document.getElementById("<%= div_id %>");
+                        div.addEventListener("click", function(){
+                            document.querySelector(".trip-modal").style.display = "flex"
+                        });
+                    </script>
+                    </div>
+                <td align="center"><%=data.calendarInfo.toLocaleString()%></td>
+                <td align="center"><%=data.streetNum + " " + data.streetName%></td>
+                <td align="center"><%=data.airline%></td>
+                <td align="center">open</td>
+            </tr>
+            <% i++; }); %>
+            <% }else{ %>
+                <tr>
+                    <td colspan="4"> No data Found</td>
+                </tr>
+            <% } %>
+    </table>
+</div>
+
+
+
+
+    <!--
+        *************************************************************
+        Schedule Trip Modal
+        *************************************************************
+    -->
+    <div id="schedule_new_trip_button"class="schedule_button" title="schedule new trip">
+        +
+        <script type="text/javascript">
+            const div = document.getElementById('schedule_new_trip_button');
+            div.addEventListener('click', function() {
+                document.querySelector(".trip-modal").style.display = "flex";
+            });
+        </script>
+
+        <!--WHY DOESN"T THIS WORK
+        <script src='../schedule.js'> 
+        </script>
+        -->        
+
+    </div>
+
+    <!--
+        *************************************************************
+        Search Trip Mates
+        *************************************************************
+    -->
+
+    <div id="matching_results_content" class="content">
+        <div class="schedule_trip_form">
+            <form action="/search" method="POST">
+                <h2>Required Parameter</h2>
+                <h3>Date</h3>
+                <input type="date" id="search_date" name="search_date" min="2020-01-01" max="2020-12-31" required><br></br>
+                <h2>Optional Parameters</h2>
+                <h3>Airline</h3>
+                <div class="search_airlines">
+                <select id= "search_airline" name="search_airline" required>
+                    <label>Airline</label>
+                    <h4>airline</h4>
+                    <option value = "Any">Any</option>
+                    <option value = "Delta">Delta</option>
+                    <option value = "American Airlines">American Airlines</option>
+                    <option value = "United Airlines">United Airlines</option>
+                    <option value = "Southwest Airlines">Southwest Airlines</option>
+                    <option value = "Spirit">Spirit</option>
+                    <option value = "JetBlue">JetBlue</option>
+                    <option value = "Other">Other</option>
+                </select>
+                <h3>Time frame of departure</h3>
+                <div>
+                    From<input type="time" name="search_start_time" placeholder="hrs:mins"/><br></br>
+                    To<input type="time" name="search_end_time" placeholder="hrs:mins"/><br></br> 
+                </div>
+                <br></br>  
+                <input type=submit value="Search">              
+                </div> 
+            </form>
+        </div>
+    </div>
+
+
+
+    <div class="trip-modal">
+        <div class="trip_modal_content">
+            <div class="close" id="schedule_close">+
+                <script type="text/javascript">
+                    const close = document.getElementById('schedule_close');
+                    close.addEventListener('click', function(){
+                        document.querySelector(".trip-modal").style.display = "none";
+                    }); 
+                </script>
+            </div>
+            <div class="trip_title">
+                <h1>Schedule a Trip</h1>
+            </div>
+            <div class="schedule_trip_form">
+                <form action="/schedule" method="POST">
+                    <h3>Destination Address</h3>
+                    <div>
+                        <label>street no.</label>
+                        <input name="street_num" required>
+                        <label>street address</label>
+                        <input name="street_addr" required>
+                        <br></br>
+                        <label>Ann Arbor,</label>
+                        <label>Michigan</label>
+                        <br></br>
+                        <label>Zip Code</label>
+                        <input name="zipcode" required>
+                    </div>
+                    <h3>Airlines</h3>
+                    <div>
+                        <select id= "airline" name="airline" required>
+                            <label>Airline</label>
+                            <h4>airline</h4>
+                            <option value = "Delta">Delta</option>
+                            <option value = "American Airlines">American Airlines</option>
+                            <option value = "United Airlines">United Airlines</option>
+                            <option value = "Southwest Airlines">Southwest Airlines</option>
+                            <option value = "Spirit">Spirit</option>
+                            <option value = "JetBlue">JetBlue</option>
+                            <option value = "Other">Other</option>
+                        </select>           
+                    </div>
+                    <h3>Date</h3>
+                    <div>
+                        <input type="date" name="date" min="2020-01-01" max="2020-12-31" required>
+                    </div>
+                    <br></br>
+                    <h3>Estimate Departure Time</h3>
+                    <h4>What time are you planning to get into a mode of transportation to leave the airport? (hrs:min, am/pm)</h4>
+                    <div>
+                        <input type="time" name="time" placeholder="hrs:mins" required/>
+                    </div>
+            
+                    <br></br>
+            
+                    <input type="submit">
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+

@@ -55,12 +55,14 @@ function initialize (passport){
               console.log("password wrong");
               return done(null, false, {message: "incorrect password"});
           }
+          else if(!rows[0].active){
+              console.log("Please verify your account");
+              return done(null, false, {message: "Please check your email to verify your account"});
+          }
           else if(bcrypt.compareSync(login_password, rows[0].password)){
             console.log("user found!");
             user = rows[0];
             return done(null,rows[0]);
-            console.log("password wrong");
-            return done(null, false, {message: "incorrect password"});
         }
         else{
             console.log("nothing works");

@@ -42,6 +42,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 const bcrypt = require("bcrypt");
 
+var randomstring = require("randomstring");
+
+var nodemailer = require("nodemailer");
+var transporter = nodemailer.createTransport({
+  service:"gmail",
+  auth: {
+    user: process.env.EMAIL2,
+    pass: process.env.EMAIL2_PASSWORD
+  }
+});
+
 
 app.set('views', __dirname + '/views');
 app.set('view-engine', 'ejs');
@@ -76,7 +87,7 @@ app.use(session({
 
 //TODO move /welcome contents to this route
 app.get('/', check_authenticated, (req, res) =>{
-    res.render('home.ejs', {message: ""});
+    res.render('home.ejs', {message: req.flash("error")});
 });
 
 //TODO change route name to be inline with html (this is not a homepage, it's landing route)
@@ -90,68 +101,44 @@ app.post("/login", passport.authenticate("local", {
   failureRedirect: "/",
   failureFlash: true
 }));
-//TODO on successful authentication, need to render dashboard
-//1) unsuccessful login render error page if not in system
-//2) unsuccessful login render verifcation page if account made but no verification
-/*
-app.post("/login", (req, res)  =>{
-
-  const connection = get_connection();
-  console.log("connection passed maybe?");
-  const user_username = req.body.login_username;
-  const user_password = req.body.login_password;
-  console.log("fetching user with username: " + user_username);
-  const query_string = "SELECT password FROM users WHERE email = ?";
-  connection.query(query_string, [user_username], (err, results, fields) =>{
-      console.log("authenticating");
-      if(err){
-          console.log("error" + err + " error");
-          res.sendStatus(500);
-          res.end();
-          return;
-      }
-
-      req.session.username = user_username;
-      console.log("fetched new user");
-      const session_name = req.session.username;
-      console.log("sesssion for: " + session_name);
-      console.log("ratchet version: " + req.session.username);
-      res.send("success!"); 
-      //need some response
-  });
-
-});
-*/
-//TODO 
-//1) Look into email verification 
-//2) on successful registration, render to email verification page
 app.post("/register", async(req, res) =>{
     var connection = get_connection();
     const username = req.body.create_username;
     console.log(username);
-    
+    var email = username + process.env.MAKE_EMAIL;
+    var verify_hash = randomstring.generate(parseInt(process.env.VERIFY_HASH));
+    var hash_exists = true;
+  
+    const hashed_password = await bcrypt.hash(req.body.create_password, parseInt(process.env.HASHED_TIMES));
     try{
-        const hashed_password = await bcrypt.hash(req.body.create_password, parseInt(process.env.HASHED_TIMES));
-        console.log(hashed_password);
-        const query_string = "INSERT INTO users (email, password) VALUES (?, ?)";
-        connection.query(query_string, [username, hashed_password], (err, results, fields) =>{
+        const query_string = "INSERT INTO users (email, password, active, hash) VALUES (?, ?, ?, ?)";
+        connection.query(query_string, [username, hashed_password, false, verify_hash], (err, results, fields) =>{
           if(err){
-            res.render("error.ejs", {error: err.code});
+            res.render("home.ejs", {message: err.code});
           }
           else{
-            res.render("home.ejs", {message: "Please log in"});
+            var mail_options = {
+              from: process.env.EMAIL,
+              to: email,
+              subject: "Please Verify Your TripShare Account",
+              html: "Please click " + "<a href='http://localhost:3000/verify/" + verify_hash + "'>here</a> to verify your account"
+            }; 
+            transporter.sendMail(mail_options, function(error, info){
+              if(error){
+                console.log(error);
+              }
+              else{
+                console.log("Email send: " + info.response);
+              }
+            });   
+            res.render("home.ejs", {message: "Please check your email to verify your account"});
           }
         });
     } catch{
 
-    }
-    
-
-
-  
+    }    
 });
 
-//TODO add additional layer of trip preferences... each trip have an id, pass the id to preferences page ith separate table in backend 
 
 app.post("/schedule", check_not_authenticated, (req, res) => {
   console.log("scheduling a trip");
@@ -200,7 +187,7 @@ app.get("/dashboard", check_not_authenticated, (req, res) =>{
         throw err;
       }
       else{
-        res.render("dashboard.ejs", {user_trip_data: data});
+        res.render("dashboard_proposed_changes.ejs", {user_trip_data: data});
       }
   });
   
@@ -264,8 +251,7 @@ app.post("/search", (req, res) =>{
       });
     }
   });
-  
-  //res.render("search_results.ejs");
+
 });
 
 app.get("/schedule_modal", (req, res) => {
@@ -276,6 +262,25 @@ app.get("/schedule_modal", (req, res) => {
 //----------------------------------------------------------------------------------------------------------
 //Helpers Routes
 //----------------------------------------------------------------------------------------------------------
+app.get("/verify/:verify_hash", function(req, res){
+  const connection = get_connection();
+  const inner_connection = get_connection();
+  var query_string = "SELECT id FROM users WHERE hash=?";
+  connection.query(query_string, [req.params.verify_hash], function(err, data){
+    if(err){
+      console.log(err);
+    }
+    else if(data.length != 0){
+      query_string = "UPDATE users SET active =? WHERE id=?";
+        inner_connection.query(query_string, [true, data[0]]);
+        res.render("home.ejs", {message: "Thank you for verifying. Please log in"});
+    }
+    else{
+      res.render("home.ejs", {message: "Couldn't Verify user"});
+    }
+  });
+});
+
 
 app.delete("/logout", (req,res) =>{
   req.logOut();
@@ -316,7 +321,9 @@ app.get("/init", (req, res)=>{
         }
     });
     query_string = "create table users (" +
-      "id INTEGER not NULL AUTO_INCREMENT," +
+      "id INTEGER not NULL AUTO_INCREMENT, " +
+      "active BOOLEAN, " + 
+      "hash VARCHAR(128) UNIQUE, " +
       "email VARCHAR(100) not NULL UNIQUE, " +
       "password VARCHAR(100) not NULL, " +
       "PRIMARY KEY(id))";
@@ -381,6 +388,9 @@ function check_not_authenticated(req, res, next){
   }
 }
 
+function print_hello(req,res){
+  console.log("hello from html");
+}
 /* Cannot get proporty so implement within dashboard route
 function show_scheduled_trips(req, res){
   var connection = get_connection();
