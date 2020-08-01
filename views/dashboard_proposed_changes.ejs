@@ -16,6 +16,31 @@
     .content{
         background-color: #E3DFDF;
     }
+
+
+    /********************************
+    Style related to the Edit Trip Modal
+    ********************************/
+
+    .edit-trip-modal{
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.7);
+        position: absolute;
+        top: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        display: none;
+    }
+
+    .edit-trip-modal-content{
+        width: 1000px;
+        height: 800px;
+        background-color: #E1C323;
+        border-radius: 4px;
+        position:relative;  
+    }
     /**********************************
     Style related to the Schedule Trip Modal
     ***********************************/
@@ -121,6 +146,7 @@
         height: 157px;
         left: 0px;
         top: 210px;
+        overflow-y: auto;
 
     }
 
@@ -166,7 +192,7 @@ Search Trip Mates
 
     #quick_add{
         position: absolute;
-        width: 471px;
+        width: 644px;
         height: 39px;
         left: 0px;
         top: 473px;
@@ -182,11 +208,13 @@ Search Trip Mates
 
     #quick_add_content{
         position: absolute;
-        width: 471px;
+        width: 644px;
         height: 492px;
         left: 0px;
         top: 512px;
+        text-align: center;
     }
+
 
     #header_band{
         position: absolute;
@@ -204,7 +232,7 @@ Search Trip Mates
     </div>
 
     <div id="quick_add" class="header">
-        Quick add for XYZ trip
+        Quick Add (TBA)
     </div>
 
     <div id="matching_results" class="header">
@@ -216,7 +244,7 @@ Search Trip Mates
     </div>
 
     <div id="quick_add_content" class="content">
-        Placeholder for people who have been added to click add
+        <h2>Feature coming next semester!</h2>
     </div>
 
 
@@ -269,7 +297,7 @@ Search Trip Mates
             <th align="center" class="user-trip-col">Date & Depart Time</th>
             <th align="center" class="destination">Destination</th>
             <th align="center" >Airline</th>
-            <th align="center" class="delete-trip">Rider Capacity</th>
+            <th align="center" class="delete-trip">Commute Status</th>
         </tr>
         <%
         if(user_trip_data.length!=0){
@@ -280,18 +308,34 @@ Search Trip Mates
                 <% var id = data.id 
                 var div_id = "edit-delete-trip-" + i.toString(); 
                 %>
-                <td align="center">
-                    <div id= <%=div_id%>>
-                        <img src="https://img.icons8.com/pastel-glyph/64/000000/edit.png"/ witdth ="30" height="30"></td>
+
                     
+                <td align="center">
+                    <div>
+                        <form action="/alter" method="POST">
+                            <!--<img src="https://img.icons8.com/pastel-glyph/64/000000/edit.png"/ witdth ="30" height="30"></td> -->
+                            <input type="hidden" id="trip_id" name="trip_id" value=<%=id %> />
+                            <input type="image" src="https://img.icons8.com/pastel-glyph/64/000000/edit.png"/ witdth ="30" height="30" alt="submit" />
+                    
+                        <!--<input type="submit"> -->
+                        </form>
+                    
+                        
+                    <!--
                     <script type="text/javascript">
-                        //div = document.getElementsByClassName("edit-delete-trip");
-                        div = document.getElementById("<%= div_id %>");
-                        div.addEventListener("click", function(){
-                            document.querySelector(".trip-modal").style.display = "flex"
+
+                        //var parsed_data = '<%- JSON.stringify(data) %>';
+                        const div = document.getElementById(pls);
+                        div.addEventListener('click', function() {
+                            document.querySelector(".edit-trip-modal").style.display = "flex";
                         });
                     </script>
+                    -->
+                    
                     </div>
+                </td>
+                
+
                 <td align="center"><%=data.calendarInfo.toLocaleString()%></td>
                 <td align="center"><%=data.streetNum + " " + data.streetName%></td>
                 <td align="center"><%=data.airline%></td>
@@ -300,11 +344,12 @@ Search Trip Mates
             <% i++; }); %>
             <% }else{ %>
                 <tr>
-                    <td colspan="4"> No data Found</td>
+                    <td colspan="5"> No data Found</td>
                 </tr>
             <% } %>
     </table>
 </div>
+
 
 
 
@@ -375,8 +420,8 @@ Search Trip Mates
         <div class="trip_modal_content">
             <div class="close" id="schedule_close">+
                 <script type="text/javascript">
-                    const close = document.getElementById('schedule_close');
-                    close.addEventListener('click', function(){
+                    const clo = document.getElementById('schedule_close');
+                    clo.addEventListener('click', function(){
                         document.querySelector(".trip-modal").style.display = "none";
                     }); 
                 </script>
@@ -432,6 +477,69 @@ Search Trip Mates
         </div>
     </div>
 
+
+<div class="edit-trip-modal">
+    <div class="edit-trip-modal-content">
+        <div class="close" id="edit-close">+
+            <script type="text/javascript">
+                const close = document.getElementById("edit-close");
+                close.addEventListener('click', function(){
+                    document.querySelector(".edit-trip-modal").style.display = "none";
+                }); 
+            </script>
+        </div>
+        <div class="trip_title">
+            <h1>Edit a Trip</h1>
+        </div>
+        <div class="schedule_trip_form">
+            <form action="/schedule" method="POST">
+                <h3>Destination Address</h3>
+                <div>
+                    <label>street no.</label>
+                    <input name="street_num" required>
+                    <label>street address</label>
+                    <input name="street_addr" required>
+                    <br></br>
+                    <label>Ann Arbor,</label>
+                    <label>Michigan</label>
+                    <br></br>
+                    <label>Zip Code</label>
+                    <input name="zipcode" required>
+                </div>
+                <h3>Airlines</h3>
+                <div>
+                    <select id= "airline" name="airline" required>
+                        <label>Airline</label>
+                        <h4>airline</h4>
+                        <option value = "Delta">Delta</option>
+                        <option value = "American Airlines">American Airlines</option>
+                        <option value = "United Airlines">United Airlines</option>
+                        <option value = "Southwest Airlines">Southwest Airlines</option>
+                        <option value = "Spirit">Spirit</option>
+                        <option value = "JetBlue">JetBlue</option>
+                        <option value = "Other">Other</option>
+                    </select>           
+                </div>
+                <h3>Date</h3>
+                <div>
+                    <input type="date" name="date" min="2020-01-01" max="2020-12-31" required>
+                </div>
+                <br></br>
+                <h3>Estimate Departure Time</h3>
+                <h4>What time are you planning to get into a mode of transportation to leave the airport? (hrs:min, am/pm)</h4>
+                <div>
+                    <input type="time" name="time" placeholder="hrs:mins" required/>
+                </div>
+        
+                <br></br>
+        
+                <input type="submit">
+            </form>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
+
 

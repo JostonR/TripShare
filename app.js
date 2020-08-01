@@ -18,7 +18,7 @@ app.use(function(req, res, next){
 const mysql = require('mysql');
 app.use(express.static('./pages'));
 const body_parser = require("body-parser");
-app.use(body_parser.urlencoded({extended: false}));
+app.use(body_parser.urlencoded({extended: true}));
 const LocalStrategy = require('passport-local').Strategy;
 
 const flash = require("express-flash");
@@ -192,6 +192,25 @@ app.get("/dashboard", check_not_authenticated, (req, res) =>{
   });
   
  //res.render("dashboard_backup.ejs");
+});
+
+
+app.post("/alter", check_not_authenticated, (req, res) => {
+  var id = req.body.trip_id;
+  var trip = req.body.trip;
+  var input = req.body.input;
+
+  var connection = get_connection();
+  var query_string = "SELECT FROM Trips WHERE id= ?";
+  connection.query(query_striing, [req.body.trip_id], (err, data, fields) =>{
+    if(err){
+      console.log("Error showing current editable trip");
+      throw err;
+    }
+    else{
+      res.render("alter_trips.ejs", {curr_trip_details: data});
+    }
+  });
 });
 
 
@@ -388,9 +407,6 @@ function check_not_authenticated(req, res, next){
   }
 }
 
-function print_hello(req,res){
-  console.log("hello from html");
-}
 /* Cannot get proporty so implement within dashboard route
 function show_scheduled_trips(req, res){
   var connection = get_connection();
