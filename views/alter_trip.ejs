@@ -1,6 +1,269 @@
 <!DOCTYPE html>
+<head>
+    <title>Edit Trip</title>
+</head>
+
+<style>
+    .header{
+        color: #2A3592;
+        text-align: center;
+        font-size: 30px;
+    }
+
+    #top-header{
+        position: absolute;
+        width: 1440px;
+        height: 65px;
+        left: 0px;
+        top: 65px;
+
+        background: #E1C323;
+    }
+
+    #edit-body{
+        position: absolute;
+        width: 1440px;
+        height: 768px;
+        left: 0px;
+        top: 222px;
+        background: #E3DFDF;    
+    }
+
+    #results-header{
+        position: absolute;
+        width: 1440px;
+        height: 39px;
+        left: 0px;
+        top: 183px;
+
+        background: #E1C323;
+    }
+
+    #return-dashboard{
+        position: absolute;
+        width: 380px;
+        height: 38px;
+        left: 0px;
+        top: 241px;
+
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 24px;
+        line-height: 28px;
+        text-align: center;
+
+        color: #2A3592;
+    }
+
+    #delete-trip{
+        position: absolute;
+        width: 380px;
+        height: 38px;
+        left: 530px;
+        top: 238px;
+
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 24px;
+        line-height: 28px;
+        text-align: center;
+
+        color: #2A3592;
+        cursor: pointer;
+    }
+
+    #search-results-div{
+        position: absolute;
+        width: 1440px;
+        height: 669px;
+        left: 0px;
+        top: 295px;
+        overflow-y: auto;
+    }
+
+
+    /* delete Modal */
+    .delete-modal{
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.7);
+        position: absolute;
+        top: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        display: none;
+    }
+    .delete-modal-content{
+        width: 800px;
+        height: 300px;
+        background-color: #E1C323;
+        border-radius: 4px;
+        position:relative;
+    }
+    .styling{
+        text-align: center;
+        color: #2A3592;
+    }
+    #delete-search{
+        cursor: pointer;
+    }
+    #delete-close{
+        position: absolute;
+        top:0;
+        right: 14px;
+        font-size: 42px;
+        transform: rotate(45deg);
+        cursor: pointer;
+        color: #2A3592;
+    }
+    .search-title{
+        text-align: center;
+        color: #2A3592;
+    }
+
+    #curr-trip-details{
+        position: absolute;
+        width: 720px;
+        height: 695px;
+        left: 0px;
+        top: 295px;
+    }
+
+    #trip-changes{
+        position: absolute;
+        width: 720px;
+        height: 695px;
+        left: 720px;
+        top: 295px; 
+    }
+    /*Edit Search Modal Ends */
+</style>
+
 <html>
-<body>
-    <h1>Hi</h1>
+<body bgcolor=#2A3592>
+    <div id="top-header">
+        <!--Logout goes here-->
+    </div>
+
+    <div id="results-header" class="header">Edit Trip</div>
+
+    <div id="edit-body"></div>
+
+    <div id="return-dashboard">
+        <a href="/dashboard">Back to Dashboard</a>
+    </div>
+
+    
+    <div id="curr-trip-details">
+        <!--using format from delete form-->
+        <div class="styling">
+        <h1>Current Trip Details</h1>
+        <% console.log(trip_details); %>
+        <% console.log(trip_details[0].id); %>
+
+        <% var address = trip_details[0].streetNum + " " + trip_details[0].streetName + " " + trip_details[0].city + "," +
+            trip_details[0].state + " " + trip_details[0].zip; 
+        %>
+        <h3>Scheduled Destination: <%=address%></h3>
+        <h3>Airline: <%=trip_details[0].airline%></h3>
+        <h3>Date & Time: <%=trip_details[0].calendarInfo.toLocaleString()%></h3>
+        %>
+
+        
+        </div>
+    </div>
+
+    <div id="trip-changes">
+        <div class="styling">
+            <h1>Changes to Current Trip</h1>
+
+        </div>
+
+        <div class="styling">
+            <form action="/edit" method="POST">
+                <h3>Destination Address</h3>
+                <div>
+                    <label>street no.</label>
+                    <input name="street_num" required>
+                    <label>street address</label>
+                    <input name="street_addr" required>
+                    <br></br>
+                    <label>Ann Arbor,</label>
+                    <label>Michigan</label>
+                    <br></br>
+                    <label>Zip Code</label>
+                    <input name="zipcode" required>
+                </div>
+                <h3>Airlines</h3>
+                <div>
+                    <select id= "airline" name="airline" required>
+                        <label>Airline</label>
+                        <h4>airline</h4>
+                        <option value = "Delta">Delta</option>
+                        <option value = "American Airlines">American Airlines</option>
+                        <option value = "United Airlines">United Airlines</option>
+                        <option value = "Southwest Airlines">Southwest Airlines</option>
+                        <option value = "Spirit">Spirit</option>
+                        <option value = "JetBlue">JetBlue</option>
+                        <option value = "Other">Other</option>
+                    </select>           
+                </div>
+                <h3>Date</h3>
+                <div>
+                    <input type="date" name="date" min="2020-01-01" max="2020-12-31" required>
+                </div>
+                <br></br>
+                <h3>Estimate Departure Time</h3>
+                <h4>What time are you planning to get into a mode of transportation to leave the airport? (hrs:min, am/pm)</h4>
+                <div>
+                    <input type="time" name="time" placeholder="hrs:mins" required/>
+                </div>
+        
+                <br>
+                <input type="hidden" name="tripID" value=<%=trip_details[0].id%> />
+                <input type="submit" value="Make Changes">
+            </form>
+        </div>
+    </div>
+    
+    
+    
+    <div id="delete-trip">Delete Trip
+        <script type="text/javascript">
+            const div = document.getElementById('delete-trip');
+            div.addEventListener('click', function() {
+                document.querySelector(".delete-modal").style.display = "flex";
+            });
+        </script>
+    </div>
+
+    <div class="delete-modal">
+        <div class="delete-modal-content">
+            <div class="close" id="delete-close">+
+                <script type="text/javascript">
+                    var closes = document.getElementById('delete-close');
+                    closes.addEventListener('click', function(){
+                        document.querySelector(".delete-modal").style.display = "none";
+                    }); 
+                </script>
+            </div>
+            <div class="styling">
+                <h2>Are you sure you want to delete this trip?</h2>
+            </div>
+
+            <div class="edit-search-form">
+                <form action="/delete-trip" method="POST">
+                    <div class="styling">
+                        <input type="hidden" name="tripID" value=<%=trip_details[0].id%> />
+                        <input type=submit value="yes"><br/><br/>
+                        <div>No. Click X to cancel</div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

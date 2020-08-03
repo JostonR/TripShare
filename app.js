@@ -68,21 +68,8 @@ function get_connection(){
     });
 };
 
-var options = {
-  host: "localhost",
-  user: "root",
-  password: "password",
-  database: "mrideshare"
-};
 
-var session_store = new MySQLStore(options);
 
-app.use(session({
-  secret: 'session_cookie_secret',
-  store: session_store,
-  resave: false,
-  saveUninitialized: false
-}));
 
 
 //TODO move /welcome contents to this route
@@ -169,7 +156,8 @@ app.post("/schedule", check_not_authenticated, (req, res) => {
       }
       else{
           console.log("trip scheduled");
-          res.send("trip scheduled");
+          res.redirect("/dashboard");
+          //res.send("trip scheduled");
           //TODO: New Modal that says Trip Scheduled with X bar
       }
   });
@@ -180,7 +168,7 @@ app.post("/schedule", check_not_authenticated, (req, res) => {
 app.get("/dashboard", check_not_authenticated, (req, res) =>{
   
   var connection = get_connection();
-  var query_string = "SELECT * FROM Trips WHERE userID= ?";
+  var query_string = "SELECT * FROM Trips WHERE userID= ? ORDER BY calendarINFO";
   connection.query(query_string, [req.user.id], (err, data, fields)=>{
       if (err){
         console.log("Error showing user's trips");
@@ -201,14 +189,54 @@ app.post("/alter", check_not_authenticated, (req, res) => {
   var input = req.body.input;
 
   var connection = get_connection();
-  var query_string = "SELECT FROM Trips WHERE id= ?";
-  connection.query(query_striing, [req.body.trip_id], (err, data, fields) =>{
+  var query_string = "SELECT * FROM Trips WHERE id= ?";
+  connection.query(query_string, [req.body.trip_id], (err, data, fields) =>{
     if(err){
       console.log("Error showing current editable trip");
       throw err;
     }
     else{
-      res.render("alter_trips.ejs", {curr_trip_details: data});
+      res.render("alter_trip.ejs", {trip_details: data});
+    }
+  });
+});
+
+app.post("/delete-trip", check_not_authenticated, (req,res)=>{
+  var query_string = "DELETE FROM trips WHERE id = ?";
+  var connection = get_connection();
+  connection.query(query_string, [req.body.tripID], (err) =>{
+    if(err){
+      console.log(err);
+      throw err;
+    }
+    else{
+      res.redirect("/dashboard");
+    }
+  });
+});
+
+
+app.post("/edit", check_not_authenticated, (req,res)=>{
+  var connection = get_connection();
+  var string_query = "Update trips SET streetNum = ?, streetName = ?, zip = ?, airline = ?, calendarInfo = ?, date = ?, time = ?, city = ?, state = ? where id = ?";
+  const street_num = req.body.street_num;
+  const street_addr = req.body.street_addr;
+  const zipcode = req.body.zipcode;
+  const airline = req.body.airline;
+  const year = "2020";
+  const date = req.body.date;
+  const hour = req.body.time.substring(0, 2);
+  const min = req.body.time.substring(3,5);
+  const time = req.body.time + ":00";
+  const date_time = date + " " + hour + ":" + min;
+
+  connection.query(string_query, [street_num, street_addr, zipcode, airline, date_time, date, time, "Ann Arbor", "Michigan", req.body.tripID], (err, data)=>{
+    if(err){
+      console.log(err);
+      throw(err);
+    }
+    else{
+      res.redirect("/dashboard");
     }
   });
 });
@@ -219,20 +247,17 @@ app.post("/search", (req, res) =>{
   var airline = req.body.search_airline;
   var start_time = req.body.search_start_time;
   var end_time = req.body.search_end_time;
-  console.log("date: " + date);
-  console.log("airline: " + airline);
-  console.log("start_time: " + req.body.search_start_time);
-  console.log(req.body.search_start_time);
-  console.log("end_time: " + end_time);
+
 
   if(req.body.search_start_time == ""){
     console.log("start_time is empty");
   }
   var search_criteria =[];
   search_criteria.push(date);
+  search_criteria.push(req.user.id);
   var additional_params = 0;
   var connection = get_connection();
-  var query_string = "SELECT * FROM Trips Where date = ?";
+  var query_string = "SELECT * FROM Trips WHERE date = ? AND userID <> ?";
   if(airline != "Any"){
     query_string += " AND airline= ?";
     search_criteria.push(airline);
