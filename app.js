@@ -5,7 +5,7 @@ if(process.env.NODE_ENV !== 'production'){
 
 const express = require('express');
 var session = require('express-session');
-var MySQLStore = require('express-mysql-session')(session);
+const mysql2 = require("mysql2/promise");
 const app = express();
 
 app.use(function(req, res, next){
@@ -68,6 +68,15 @@ function get_connection(){
     });
 };
 
+function get_connection_two(){
+  return mysql2.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "password",
+    database: "mrideshare"
+  });
+}
+
 
 
 
@@ -97,6 +106,11 @@ app.post("/register", async(req, res) =>{
     var hash_exists = true;
   
     const hashed_password = await bcrypt.hash(req.body.create_password, parseInt(process.env.HASHED_TIMES));
+    var confirmed_password = req.body.confirm_password.toString();
+    if(!bcrypt.compareSync(req.body.confirm_password, hashed_password)){
+      res.render("home.ejs", {message: "Passwords do not match"});
+      return;
+    }
     try{
         const query_string = "INSERT INTO users (email, password, active, hash) VALUES (?, ?, ?, ?)";
         connection.query(query_string, [username, hashed_password, false, verify_hash], (err, results, fields) =>{
@@ -157,8 +171,6 @@ app.post("/schedule", check_not_authenticated, (req, res) => {
       else{
           console.log("trip scheduled");
           res.redirect("/dashboard");
-          //res.send("trip scheduled");
-          //TODO: New Modal that says Trip Scheduled with X bar
       }
   });
 
@@ -325,6 +337,115 @@ app.get("/verify/:verify_hash", function(req, res){
   });
 });
 
+app.get("/forgot", (req,res) =>{
+  res.render("forgot_password.ejs");
+});
+
+app.post("/password-change", async function(req,res){
+  if(req.body.change_password !== req.body.confirm_change_password){
+    res.render("change_password.ejs", {message: "Passwords don't match. Try again", uniqname: req.body.uniqname});
+  }
+  else{
+    const hashed_password = await bcrypt.hash(req.body.change_password, parseInt(process.env.HASHED_TIMES));
+    var connection = get_connection();
+    connection.query("Update users SET password = ? WHERE email=?", [hashed_password, req.body.uniqname], (err, data)=>{
+      if(err){
+        console.log(err);
+        throw err;
+      }
+      else{
+        res.render("home.ejs", {message: "Password Reset. Please log in"});
+      }
+    })
+  }
+});
+
+app.get("/forget-password/:uniqname/:change_hash", async function(req, res){
+  const connection = await get_connection_two();
+  const change_password = await get_connection_two();
+
+  var requested_date;
+  var results;
+  const [rows, fields] = await connection.execute("SELECT * FROM users WHERE email = ?", [req.params.uniqname]);
+  console.log(rows);
+  console.log("email is " + rows[0].change_password_last_request);
+  var curr_date = new Date();
+  requested_date = rows[0].change_password_last_request;
+  
+  // the following is to handle cases where the times are on the opposite side of
+// midnight e.g. when you want to get the difference between 9:00 PM and 5:00 AM
+
+  if (curr_date < requested_date) {
+    console.log("something's not right with change pssword date");
+    date2.setDate(date2.getDate() + 1);
+  }
+
+  else{
+    var diff = curr_date - requested_date;
+    //1 hour
+    var THRESHOLD = 1800000;
+    if(diff < THRESHOLD){
+      if(!bcrypt.compareSync(req.params.change_hash, rows[0].change_password_hash)){
+        res.render("home.ejs", {message: "Token wrong. Please go to forgot password and try again"});
+      }
+      else{
+        //var redirect_route = "/change-password/" + req.params.uniqname + "/" + req.params.change_hash;
+        //res.redirect("/");
+        res.render("change_password.ejs", {message: "please enter a new password", uniqname: req.params.uniqname});
+      }
+    }
+    else{
+      res.render("home.ejs", {message: "Token expired. Please go to forgot password and try again"});
+    }
+  }
+
+
+});
+
+app.post("/forgot-password", async function(req,res){
+  var uniqname = req.body.uniqname;
+  var email = uniqname + process.env.MAKE_EMAIL;
+  var verify_hash = randomstring.generate(parseInt(process.env.VERIFY_HASH));
+  var hashed_password = await bcrypt.hash(verify_hash, parseInt(process.env.HASHED_TIMES));
+  var current_date = new Date();
+  var set_hash = "UPDATE users SET change_password_hash = ?, change_password_last_request = ? WHERE email = ?";
+
+  const connection = get_connection();
+  
+  connection.query(set_hash, [hashed_password, current_date, uniqname], (err, data)=>{
+    if(err){
+      console.log(err);
+      throw err;
+    }
+    else{
+      var uniq_hash = uniqname + "/" + verify_hash;
+      var mail_options = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: "Reset Your MTripShare Password",
+        html: "Please click " + "<a href='http://localhost:3000/forget-password/" + uniq_hash + "'>here</a> to reset your password"
+      }; 
+      transporter.sendMail(mail_options, function(error, info){
+        if(error){
+          console.log(error);
+        }
+        else{
+          console.log("Email send: " + info.response);
+        }
+      });   
+      res.render("home.ejs", {message: "Please check your email for instructons"});
+    }
+  });
+
+});
+
+app.get("/test/:name/:color", (req,res)=>{
+  if(req.params.name == "Joston"){
+    console.log("Joston");
+    res.send("hello");
+  }
+});
+
 
 app.delete("/logout", (req,res) =>{
   req.logOut();
@@ -367,9 +488,11 @@ app.get("/init", (req, res)=>{
     query_string = "create table users (" +
       "id INTEGER not NULL AUTO_INCREMENT, " +
       "active BOOLEAN, " + 
-      "hash VARCHAR(128) UNIQUE, " +
+      "hash VARCHAR(128), " +
       "email VARCHAR(100) not NULL UNIQUE, " +
       "password VARCHAR(100) not NULL, " +
+      "change_password_hash VARCHAR(256), " +
+      "change_password_last_request DATETIME, " + 
       "PRIMARY KEY(id))";
     connection.query(query_string, (err, results, fields)=>{
           if (err){
