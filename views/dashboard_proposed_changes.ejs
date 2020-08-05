@@ -225,6 +225,16 @@ Search Trip Mates
         background: #E1C323;
     }
 
+    #app-name{
+        position: absolute;
+        width: 361px;
+        height: 62px;
+        left: 512px;
+        top: 68px;
+        text-align: center;
+        color: #2A3592;
+    }
+
 </style>
 <body bgcolor=#2A3592>
     <div id="scheduled_trips" class="header">
@@ -252,6 +262,9 @@ Search Trip Mates
     <form id="header_band" action="/logout?_method=DELETE" method="POST">
         <button>Logout</button>
     </form>
+    <div id="app-name">
+        <h1>MTripShare</h1>
+    </div>
 
 
         <!--
@@ -297,7 +310,6 @@ Search Trip Mates
             <th align="center" class="user-trip-col">Date & Depart Time</th>
             <th align="center" class="destination">Destination</th>
             <th align="center" >Airline</th>
-            <th align="center" class="delete-trip">Commute Status</th>
         </tr>
         <%
         if(user_trip_data.length!=0){
@@ -339,12 +351,11 @@ Search Trip Mates
                 <td align="center"><%=data.calendarInfo.toLocaleString()%></td>
                 <td align="center"><%=data.streetNum + " " + data.streetName%></td>
                 <td align="center"><%=data.airline%></td>
-                <td align="center">open</td>
             </tr>
             <% i++; }); %>
             <% }else{ %>
                 <tr>
-                    <td colspan="5"> No data Found</td>
+                    <td colspan="4"> No Trips Scheduled</td>
                 </tr>
             <% } %>
     </table>
@@ -386,7 +397,7 @@ Search Trip Mates
             <form action="/search" method="POST">
                 <h2>Required Parameter</h2>
                 <h3>Date</h3>
-                <input type="date" id="search_date" name="search_date" min="2020-01-01" max="2020-12-31" required><br></br>
+                <input type="date" id="search_date" name="search_date" min=<%=current_date%> max="2020-12-31" required><br></br>
                 <h2>Optional Parameters</h2>
                 <h3>Airline</h3>
                 <div class="search_airlines">
@@ -402,7 +413,7 @@ Search Trip Mates
                     <option value = "JetBlue">JetBlue</option>
                     <option value = "Other">Other</option>
                 </select>
-                <h3>Time frame of departure</h3>
+                <h3>Time frame of DTW departure</h3>
                 <div>
                     From<input type="time" name="search_start_time" placeholder="hrs:mins"/><br></br>
                     To<input type="time" name="search_end_time" placeholder="hrs:mins"/><br></br> 
@@ -433,8 +444,8 @@ Search Trip Mates
                 <form action="/schedule" method="POST">
                     <h3>Destination Address</h3>
                     <div>
-                        <label>street no.</label>
-                        <input name="street_num" required>
+                        <label>street number</label>
+                        <input type="number" name="street_num" required>
                         <label>street address</label>
                         <input name="street_addr" required>
                         <br></br>
@@ -460,11 +471,11 @@ Search Trip Mates
                     </div>
                     <h3>Date</h3>
                     <div>
-                        <input type="date" name="date" min="2020-01-01" max="2020-12-31" required>
+                        <input type="date" name="date" min=<%=current_date%> max="2020-12-31" required>
                     </div>
                     <br></br>
-                    <h3>Estimate Departure Time</h3>
-                    <h4>What time are you planning to get into a mode of transportation to leave the airport? (hrs:min, am/pm)</h4>
+                    <h3>Estimated DTW Departure Time</h3>
+                    <h4>What time are you planning to get into a mode of transportation to leave DTW? (hrs:min, am/pm)</h4>
                     <div>
                         <input type="time" name="time" placeholder="hrs:mins" required/>
                     </div>
@@ -522,11 +533,11 @@ Search Trip Mates
                 </div>
                 <h3>Date</h3>
                 <div>
-                    <input type="date" name="date" min="2020-01-01" max="2020-12-31" required>
+                    <input type="date" name="date" min=<%=current_date%> max="2020-12-31" required>
                 </div>
                 <br></br>
-                <h3>Estimate Departure Time</h3>
-                <h4>What time are you planning to get into a mode of transportation to leave the airport? (hrs:min, am/pm)</h4>
+                <h3>Estimated Departure Time</h3>
+                <h4>What time are you planning to get into a mode of transportation to leave DTW? (hrs:min, am/pm)</h4>
                 <div>
                     <input type="time" name="time" placeholder="hrs:mins" required/>
                 </div>

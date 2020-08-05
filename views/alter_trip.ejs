@@ -186,8 +186,8 @@
             <form action="/edit" method="POST">
                 <h3>Destination Address</h3>
                 <div>
-                    <label>street no.</label>
-                    <input name="street_num" required>
+                    <label>street number</label>
+                    <input type="number" name="street_num" required>
                     <label>street address</label>
                     <input name="street_addr" required>
                     <br></br>
@@ -213,11 +213,11 @@
                 </div>
                 <h3>Date</h3>
                 <div>
-                    <input type="date" name="date" min="2020-01-01" max="2020-12-31" required>
+                    <input type="date" name="date" min=<%=current_date%> max="2020-12-31" required>
                 </div>
                 <br></br>
-                <h3>Estimate Departure Time</h3>
-                <h4>What time are you planning to get into a mode of transportation to leave the airport? (hrs:min, am/pm)</h4>
+                <h3>Estimated Departure Time</h3>
+                <h4>What time are you planning to get into a mode of transportation to leave DTW? (hrs:min, am/pm)</h4>
                 <div>
                     <input type="time" name="time" placeholder="hrs:mins" required/>
                 </div>

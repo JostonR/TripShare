@@ -141,8 +141,16 @@ app.post("/register", async(req, res) =>{
 });
 
 
-app.post("/schedule", check_not_authenticated, (req, res) => {
+app.post("/schedule", check_not_authenticated, async(req, res) => {
   console.log("scheduling a trip");
+  const check_for_spam_trips = "SELECT * from trips WHERE userID =?";
+  const check_trip_num = await get_connection_two();
+  const [rows, fields] = await check_trip_num.execute(check_for_spam_trips, [req.user.id]);
+  console.log("number of trips is: " + rows.length);
+  if(rows.length >= 2){
+    res.render("error.ejs", {error: "Please delete current trips to schedule additional ones"});
+    return;
+  } 
   const street_num = req.body.street_num;
   const street_addr = req.body.street_addr;
   const zipcode = req.body.zipcode;
@@ -187,9 +195,28 @@ app.get("/dashboard", check_not_authenticated, (req, res) =>{
         throw err;
       }
       else{
-        res.render("dashboard_proposed_changes.ejs", {user_trip_data: data});
+        var curr_date = new Date();
+        var month = curr_date.getMonth() + 1;
+        var day = curr_date.getDate();
+        var year = curr_date.getFullYear();
+        if(day < 10){
+          day = "0" + day;
+          console.log(day);
+        }
+        if(month < 10){
+          month = "0" + month;
+          console.log(month);
+        }
+        var date = year + "-" + month + "-" + day;
+        console.log("day is " + date); 
+
+        res.render("dashboard_proposed_changes.ejs", {user_trip_data: data, current_date: date});
       }
   });
+
+  app.get("/backtodash", check_not_authenticated, (req,res)=>{
+    res.redirect("/dashboard");
+  })
   
  //res.render("dashboard_backup.ejs");
 });
@@ -208,7 +235,21 @@ app.post("/alter", check_not_authenticated, (req, res) => {
       throw err;
     }
     else{
-      res.render("alter_trip.ejs", {trip_details: data});
+      var curr_date = new Date();
+      var month = curr_date.getMonth() + 1;
+      var day = curr_date.getDate();
+      var year = curr_date.getFullYear();
+      if(day < 10){
+        day = "0" + day;
+        console.log(day);
+      }
+      if(month < 10){
+        month = "0" + month;
+        console.log(month);
+      }
+      var date = year + "-" + month + "-" + day;
+      console.log("day is " + date); 
+      res.render("alter_trip.ejs", {trip_details: data, current_date: date});
     }
   });
 });
