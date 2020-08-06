@@ -143,7 +143,7 @@ app.post("/register", async(req, res) =>{
             from: "mtripshare@mtripshare.com",
             to: email,
             subject: "Please Verify Your TripShare Account",
-            html: "Please click " + "<a href='http://localhost:3000/verify/" + verify_hash + "'>here</a> to verify your account"
+            html: "Please click " + "<a href='"+ process.env.VERIFY_URL + verify_hash + "'>here</a> to verify your account"
           };
            
           mailgun.messages().send(data, function (error, body) {
@@ -497,7 +497,7 @@ app.post("/forgot-password", async function(req,res){
       from: "mtripshare@mtripshare.com",
       to: email,
       subject: "Reset Your MTripShare Password",
-      html: "Please click " + "<a href='http://localhost:3000/forget-password/" + uniq_hash + "'>here</a> to reset your password"
+      html: "Please click " + "<a href='" + process.env.PASSWORD_RESET_URL + uniq_hash + "'>here</a> to reset your password"
     };
      
     mailgun.messages().send(data, function (error, body) {
