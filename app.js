@@ -53,6 +53,10 @@ var transporter = nodemailer.createTransport({
   }
 });
 
+var MAILGUN_API_KEY = process.env.MAILGUN_API_KEY;
+var domain = "mtripshare.com";
+var mailgun = require("mailgun-js")({apiKey: MAILGUN_API_KEY, domain: domain});
+
 
 app.set('views', __dirname + '/views');
 app.set('view-engine', 'ejs');
@@ -118,12 +122,14 @@ app.post("/register", async(req, res) =>{
             res.render("home.ejs", {message: err.code});
           }
           else{
+            /*
             var mail_options = {
               from: process.env.EMAIL,
               to: email,
               subject: "Please Verify Your TripShare Account",
               html: "Please click " + "<a href='http://localhost:3000/verify/" + verify_hash + "'>here</a> to verify your account"
             }; 
+            
             transporter.sendMail(mail_options, function(error, info){
               if(error){
                 console.log(error);
@@ -132,6 +138,17 @@ app.post("/register", async(req, res) =>{
                 console.log("Email send: " + info.response);
               }
             });   
+            */
+           var data = {
+            from: "mtripshare@mtripshare.com",
+            to: email,
+            subject: "Please Verify Your TripShare Account",
+            html: "Please click " + "<a href='http://localhost:3000/verify/" + verify_hash + "'>here</a> to verify your account"
+          };
+           
+          mailgun.messages().send(data, function (error, body) {
+            console.log(body);
+          });
             res.render("home.ejs", {message: "Please check your email to verify your account"});
           }
         });
@@ -460,6 +477,7 @@ app.post("/forgot-password", async function(req,res){
     }
     else{
       var uniq_hash = uniqname + "/" + verify_hash;
+      /*
       var mail_options = {
         from: process.env.EMAIL,
         to: email,
@@ -473,7 +491,18 @@ app.post("/forgot-password", async function(req,res){
         else{
           console.log("Email send: " + info.response);
         }
-      });   
+      });  
+      */
+     var data = {
+      from: "mtripshare@mtripshare.com",
+      to: email,
+      subject: "Reset Your MTripShare Password",
+      html: "Please click " + "<a href='http://localhost:3000/forget-password/" + uniq_hash + "'>here</a> to reset your password"
+    };
+     
+    mailgun.messages().send(data, function (error, body) {
+      console.log(body);
+    }); 
       res.render("home.ejs", {message: "Please check your email for instructons"});
     }
   });

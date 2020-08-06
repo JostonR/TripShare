@@ -25,6 +25,7 @@
     "express-flash": "0.0.2",
     "express-mysql-session": "^2.1.4",
     "express-session": "^1.17.1",
+    "mailgun-js": "^0.22.0",
     "method-override": "^3.0.0",
     "mysql": "^2.18.1",
     "mysql2": "^2.1.0",
