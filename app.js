@@ -205,7 +205,7 @@ app.post("/schedule", check_not_authenticated, async(req, res) => {
 app.get("/dashboard", check_not_authenticated, (req, res) =>{
   
   var connection = get_connection();
-  var query_string = "SELECT * FROM Trips WHERE userID= ? ORDER BY calendarINFO";
+  var query_string = "SELECT * FROM trips WHERE userID= ? ORDER BY calendarINFO";
   connection.query(query_string, [req.user.id], (err, data, fields)=>{
       if (err){
         console.log("Error showing user's trips");
