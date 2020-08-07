@@ -66,8 +66,8 @@ app.engine('html', require('ejs').renderFile);
 function get_connection(){
     return mysql.createConnection({
         host: "localhost",
-        user: "root",
-        password: "password",
+        user: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
         database: "mrideshare"
     });
 };
@@ -75,8 +75,8 @@ function get_connection(){
 function get_connection_two(){
   return mysql2.createConnection({
     host: "localhost",
-    user: "root",
-    password: "password",
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
     database: "mrideshare"
   });
 }
@@ -164,7 +164,7 @@ app.post("/schedule", check_not_authenticated, async(req, res) => {
   const check_trip_num = await get_connection_two();
   const [rows, fields] = await check_trip_num.execute(check_for_spam_trips, [req.user.id]);
   console.log("number of trips is: " + rows.length);
-  if(rows.length >= 2){
+  if(rows.length >= 1){
     res.render("error.ejs", {error: "Please delete current trips to schedule additional ones"});
     return;
   } 
