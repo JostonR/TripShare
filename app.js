@@ -90,18 +90,14 @@ app.get('/', check_authenticated, (req, res) =>{
     res.render('home.ejs', {message: req.flash("error")});
 });
 
-//TODO change route name to be inline with html (this is not a homepage, it's landing route)
-app.get("/welcome", (req, res) =>{
-    res.render("homepage.html", {uname: "User"});
-});
 
 
-app.post("/login", passport.authenticate("local", {
+app.post("/login", check_authenticated, passport.authenticate("local", {
   successRedirect: "/dashboard",
   failureRedirect: "/",
   failureFlash: true
 }));
-app.post("/register", async(req, res) =>{
+app.post("/register", check_authenticated, async(req, res) =>{
     var connection = get_connection();
     const username = req.body.create_username;
     var email = username + process.env.MAKE_EMAIL;
@@ -309,7 +305,7 @@ app.post("/edit", check_not_authenticated, (req,res)=>{
 });
 
 
-app.post("/search", (req, res) =>{
+app.post("/search", check_not_authenticated, (req, res) =>{
   var date = req.body.search_date;
   var airline = req.body.search_airline;
   var start_time = req.body.search_start_time;
@@ -370,7 +366,7 @@ app.post("/search", (req, res) =>{
 //----------------------------------------------------------------------------------------------------------
 //Helpers Routes
 //----------------------------------------------------------------------------------------------------------
-app.get("/verify/:verify_hash", function(req, res){
+app.get("/verify/:verify_hash", check_authenticated, function(req, res){
   const connection = get_connection();
   const inner_connection = get_connection();
   var query_string = "SELECT id FROM users WHERE hash=?";
@@ -389,11 +385,11 @@ app.get("/verify/:verify_hash", function(req, res){
   });
 });
 
-app.get("/forgot", (req,res) =>{
+app.get("/forgot", check_authenticated, (req,res) =>{
   res.render("forgot_password.ejs");
 });
 
-app.post("/password-change", async function(req,res){
+app.post("/password-change", check_authenticated, async function(req,res){
   if(req.body.change_password !== req.body.confirm_change_password){
     res.render("change_password.ejs", {message: "Passwords don't match. Try again", uniqname: req.body.uniqname});
   }
@@ -412,7 +408,7 @@ app.post("/password-change", async function(req,res){
   }
 });
 
-app.get("/forget-password/:uniqname/:change_hash", async function(req, res){
+app.get("/forget-password/:uniqname/:change_hash", check_authenticated, async function(req, res){
   const connection = await get_connection_two();
   const change_password = await get_connection_two();
 
@@ -454,7 +450,7 @@ app.get("/forget-password/:uniqname/:change_hash", async function(req, res){
 
 });
 
-app.post("/forgot-password", async function(req,res){
+app.post("/forgot-password", check_authenticated, async function(req,res){
   var uniqname = req.body.uniqname;
   var email = uniqname + process.env.MAKE_EMAIL;
   var verify_hash = randomstring.generate(parseInt(process.env.VERIFY_HASH));
@@ -503,12 +499,6 @@ app.post("/forgot-password", async function(req,res){
 
 });
 
-app.get("/test/:name/:color", (req,res)=>{
-  if(req.params.name == "Joston"){
-    console.log("Joston");
-    res.send("hello");
-  }
-});
 
 
 app.delete("/logout", (req,res) =>{
