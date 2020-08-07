@@ -205,7 +205,7 @@ app.post("/schedule", check_not_authenticated, async(req, res) => {
 app.get("/dashboard", check_not_authenticated, (req, res) =>{
   
   var connection = get_connection();
-  var query_string = "SELECT * FROM Trips WHERE userID= ? ORDER BY calendarINFO";
+  var query_string = "SELECT * FROM trips WHERE userID= ? ORDER BY calendarINFO";
   connection.query(query_string, [req.user.id], (err, data, fields)=>{
       if (err){
         console.log("Error showing user's trips");
@@ -245,7 +245,7 @@ app.post("/alter", check_not_authenticated, (req, res) => {
   var input = req.body.input;
 
   var connection = get_connection();
-  var query_string = "SELECT * FROM Trips WHERE id= ?";
+  var query_string = "SELECT * FROM trips WHERE id= ?";
   connection.query(query_string, [req.body.trip_id], (err, data, fields) =>{
     if(err){
       console.log("Error showing current editable trip");
@@ -327,7 +327,7 @@ app.post("/search", (req, res) =>{
   search_criteria.push(req.user.id);
   var additional_params = 0;
   var connection = get_connection();
-  var query_string = "SELECT * FROM Trips WHERE date = ? AND userID <> ?";
+  var query_string = "SELECT * FROM trips WHERE date = ? AND userID <> ?";
   if(airline != "Any"){
     query_string += " AND airline= ?";
     search_criteria.push(airline);
