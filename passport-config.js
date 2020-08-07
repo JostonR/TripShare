@@ -189,8 +189,8 @@ module.exports = initialize;
 function get_connection(){
     return mysql.createConnection({
         host: "localhost",
-        user: "root",
-        password: "password",
+        user: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
         database: "mrideshare"
     });
 };
