@@ -138,7 +138,7 @@ app.post("/register", check_authenticated, async(req, res) =>{
             from: "mtripshare@mtripshare.com",
             to: email,
             subject: "Please Verify Your TripShare Account",
-            html: "Please click " + "<a href='"+ process.env.VERIFY_URL + verify_hash + "'>here</a> to verify your account"
+            html: "Please use the following link in the browser to complete your account verification setup " + "<br/>" + process.env.VERIFY_URL + verify_hash
           };
            
           mailgun.messages().send(data, function (error, body) {
