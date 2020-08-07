@@ -143,7 +143,9 @@
     <%
     var header = "Showing Results for";
     for(var h = 0; h < criteria.length; h++){
-        header+= " " + criteria[h];
+        if(h != 1){
+            header+= " " + criteria[h];
+        }
     }
     %>
     <div id="results-header" class="header"><%=header%></div>

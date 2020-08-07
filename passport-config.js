@@ -6,7 +6,6 @@ const mysql = require('mysql');
 
 function find_user_by_id(id){
     console.log("deserialize " + id);
-    console.log("trying to find user already");
     var id_int = parseInt(id);
     const connect = get_connection();
     const query = "SELECT * from users WHERE id = ?";
@@ -72,14 +71,10 @@ function initialize (passport){
     
     }));
     passport.serializeUser(function(user, done) {
-        console.log("made it out with a user " + user.email + " and password " + user.password);
-        console.log("user with id " + user.id);
         done(null, user.id);
       });
       
     passport.deserializeUser(function(id, done) {
-        console.log("deserialize " + id);
-        console.log("trying to find user already");
         var id_int = parseInt(id);
         const connect = get_connection();
         const query = "SELECT * from users WHERE id = ?";

@@ -104,7 +104,6 @@ app.post("/login", passport.authenticate("local", {
 app.post("/register", async(req, res) =>{
     var connection = get_connection();
     const username = req.body.create_username;
-    console.log(username);
     var email = username + process.env.MAKE_EMAIL;
     var verify_hash = randomstring.generate(parseInt(process.env.VERIFY_HASH));
     var hash_exists = true;
@@ -159,11 +158,9 @@ app.post("/register", async(req, res) =>{
 
 
 app.post("/schedule", check_not_authenticated, async(req, res) => {
-  console.log("scheduling a trip");
   const check_for_spam_trips = "SELECT * from trips WHERE userID =?";
   const check_trip_num = await get_connection_two();
   const [rows, fields] = await check_trip_num.execute(check_for_spam_trips, [req.user.id]);
-  console.log("number of trips is: " + rows.length);
   if(rows.length >= 1){
     res.render("error.ejs", {error: "Please delete current trips to schedule additional ones"});
     return;
@@ -368,9 +365,6 @@ app.post("/search", (req, res) =>{
 
 });
 
-app.get("/schedule_modal", (req, res) => {
-
-});
 
 
 //----------------------------------------------------------------------------------------------------------
