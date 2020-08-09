@@ -366,10 +366,11 @@ app.post("/search", check_not_authenticated, (req, res) =>{
 //----------------------------------------------------------------------------------------------------------
 //Helpers Routes
 //----------------------------------------------------------------------------------------------------------
-app.get("/verify/:verify_hash", check_authenticated, function(req, res){
-  const connection = get_connection();
-  const inner_connection = get_connection();
+app.get("/verify/:verify_hash", check_authenticated, async function(req, res){
+  const connection = await get_connection_two();
+  const inner_connection = await get_connection_two();
   var query_string = "SELECT id FROM users WHERE hash=?";
+  /*
   connection.query(query_string, [req.params.verify_hash], function(err, data){
     if(err){
       console.log(err);
@@ -390,6 +391,17 @@ app.get("/verify/:verify_hash", check_authenticated, function(req, res){
       res.render("home.ejs", {message: "Couldn't Verify user"});
     }
   });
+  */
+
+  const [row, fields] = await connection.execute(query_string, [req.params.verify_hash]);
+  if(row.length != 0){
+    query_string = "UPDATE users SET active =? WHERE id=?";
+    await inner_connection.execute(query_string, [true, row[0].id]);
+    res.render("home.ejs", {message: "Thank you for verifying. Please log in"});
+  }
+  else{
+    res.render("home.ejs", {message: "Couldn't Verify user"});
+  }
 });
 
 app.get("/forgot", check_authenticated, (req,res) =>{
@@ -500,7 +512,7 @@ app.post("/forgot-password", check_authenticated, async function(req,res){
     mailgun.messages().send(data, function (error, body) {
       console.log(body);
     }); 
-    
+
     res.render("home.ejs", {message: "Please check your email for instructons"});
     }
   });
