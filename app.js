@@ -472,6 +472,12 @@ app.get("/forget-password/:uniqname/:change_hash", check_authenticated, async fu
 app.post("/forgot-password", check_authenticated, async function(req,res){
   var uniqname = req.body.uniqname;
   var email = uniqname + process.env.MAKE_EMAIL;
+  const verification_check = await get_connection_two();
+  const [rows, fields] = await verification_check.execute("SELECT * FROM users WHERE email = ?", [uniqname]);
+  if(rows.length == 0){
+    res.render("home.ejs", {message: "If an email exists with that uniqname, a reset link will be sent"});
+    return;
+  }
   var verify_hash = randomstring.generate(parseInt(process.env.VERIFY_HASH));
   var hashed_password = await bcrypt.hash(verify_hash, parseInt(process.env.HASHED_TIMES));
   var current_date = new Date();
