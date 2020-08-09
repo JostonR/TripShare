@@ -152,6 +152,10 @@ app.post("/register", check_authenticated, async(req, res) =>{
     }    
 });
 
+app.get("/terms", (req,res) =>{
+  res.render("terms_and_conditions.ejs");
+});
+
 
 app.post("/schedule", check_not_authenticated, async(req, res) => {
   const check_for_spam_trips = "SELECT * from trips WHERE userID =?";
