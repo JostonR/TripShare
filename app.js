@@ -376,8 +376,15 @@ app.get("/verify/:verify_hash", check_authenticated, function(req, res){
     }
     else if(data.length != 0){
       query_string = "UPDATE users SET active =? WHERE id=?";
-        inner_connection.query(query_string, [true, data[0]]);
-        res.render("home.ejs", {message: "Thank you for verifying. Please log in"});
+        inner_connection.query(query_string, [true, data[0]], (err) =>{
+          if(err){
+            console.log(err);
+            throw (err);
+          }
+          else{
+            res.render("home.ejs", {message: "Thank you for verifying. Please log in"});
+          }
+        });
     }
     else{
       res.render("home.ejs", {message: "Couldn't Verify user"});
@@ -493,7 +500,8 @@ app.post("/forgot-password", check_authenticated, async function(req,res){
     mailgun.messages().send(data, function (error, body) {
       console.log(body);
     }); 
-      res.render("home.ejs", {message: "Please check your email for instructons"});
+    
+    res.render("home.ejs", {message: "Please check your email for instructons"});
     }
   });
 
