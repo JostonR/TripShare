@@ -137,7 +137,7 @@ app.post("/register", check_authenticated, async(req, res) =>{
               from: "mtripshare@mtripshare.com",
               to: email,
               subject: "Please Verify Your TripShare Account",
-	      text: "Please use the following link to complete your registration: " + process.env.VERIFY_URL + verify_hash
+	            text: "Please use the following link to complete your registration: " + process.env.VERIFY_URL + verify_hash
              /* html: "Please use the following link in the browser to complete your account verification setup " + "<br/>" + process.env.VERIFY_URL /* + verify_hash */
             }; 
             
