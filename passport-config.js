@@ -108,84 +108,22 @@ function initialize (passport){
 module.exports = initialize;
 
 
-
-/* OG Solution
-function initialize (passport, getUserbyEmail){
-    const authenticateUser = async (login_username, login_password, done) => {
-        console.log("user: " + login_username + " with password " + login_password);
-        console.log("test if we hit this line in pconfig");
-        const user = await getUserbyEmail(login_username);
-        //const user = null;
-        console.log(user);
-        if(user == null){
-            console.log("pconfig I: no person found with that usernme");
-            return done(null, false, {message: "no user with that email"});
-        }
-
-        try{
-            if (await bcrypt.compare(login_password, user.password)) {
-                return done(null, user);
-            }
-
-            else{
-                return done(null, false, {message: "Password incorrect"});
-            }
-        }catch(e){
-            console.log("error logging in");
-            return done(e);
-        }
-    }
-    passport.use(new LocalStrategy({usernameField: 'login_username', passwordField: 'login_password'}, authenticateUser));
-    passport.serializeUser((user, done) => { });
-    passport.deserializeUser((id, done) => { });
-};
-
-module.exports = initialize;
-*/
-/*
-function initialize (passport){
-    const authenticateUser = async (login_username, login_password, done) => {
-
-        const connect = get_connection();
-        const query = "SELECT * from users WHERE email = ?";
-        connect.query(query, [login_username], (err, rows) =>{
-          console.log("authenticating user: " + login_username + " with password " + login_password);
-          if(err){
-              return done(err);
-          }
-          else if(!rows.length){
-            console.log("configp: no email found");
-              return done(null, false, {message: "no user with that email"});
-          }
-          else if(!bcrypt.compareSync(login_password, rows[0].password)){
-              console.log("password wrong");
-              return done(null, false, {message: "incorrect password"});
-          }
-          else if(bcrypt.compareSync(login_password, rows[0].password)){
-            console.log("user found!");
-            user = rows[0];
-            return done(null,rows[0]);
-          }
-          else{
-              console.log("nothing works lmao");
-              return done(null, false);
-          }
-        });
-    }
-    console.log("about to test user" + authenticateUser.username);
-    passport.use(new LocalStrategy({usernameField: 'login_username', passwordField: 'login_password'}, authenticateUser));
-    passport.serializeUser((user, done) => { });
-    passport.deserializeUser((id, done) => { });
-};
-
-module.exports = initialize;
-*/
 function get_connection(){
     return mysql.createConnection({
         host: "localhost",
         user: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: "mrideshare"
+    });
+};
+
+
+function get_connection_two(){
+    return mysql2.createConnection({
+      host: "localhost",
+      user: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: "mrideshare"
     });
 };
 

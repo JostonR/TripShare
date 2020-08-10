@@ -94,7 +94,7 @@ function get_connection_two(){
     password: process.env.DB_PASSWORD,
     database: "mrideshare"
   });
-}
+};
 
 
 
@@ -541,6 +541,20 @@ app.delete("/logout", (req,res) =>{
 app.get("/nukeDB", (req, res) =>{
     res.render("initializeDB.html");
 })
+
+app.get("/clear", (req,res) =>{
+  const connection = get_connection();
+  connection.query("DELETE FROM users WHERE email=?", ["josephar"], (err) =>{
+    if(err){
+      throw(err);
+    }
+    else{
+      res.render("home.ejs", {message: "account deleted"});
+      return;
+    }
+  });
+
+});
 
 app.get("/init", (req, res)=>{
     var connection = get_connection();
