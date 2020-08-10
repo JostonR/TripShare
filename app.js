@@ -66,9 +66,6 @@ transporter.verify(function(error, success){
   if(error){
     console.log(error);
   }
-  else{
-    console.log("email server ready");
-  }
 });
 
 var MAILGUN_API_KEY = process.env.MAILGUN_API_KEY;
@@ -129,8 +126,8 @@ app.post("/register", check_authenticated, async(req, res) =>{
       return;
     }
     try{
-        const query_string = "INSERT INTO users (email, password, active, hash) VALUES (?, ?, ?, ?)";
-        connection.query(query_string, [username, hashed_password, false, verify_hash], (err, results, fields) =>{
+        const query_string = "INSERT INTO users (email, password, active, hash, change_password_active) VALUES (?, ?, ?, ?, ?)";
+        connection.query(query_string, [username, hashed_password, false, verify_hash, false], (err, results, fields) =>{
           if(err){
             res.render("home.ejs", {message: err.code});
           }
@@ -432,7 +429,7 @@ app.post("/password-change", check_authenticated, async function(req,res){
   else{
     const hashed_password = await bcrypt.hash(req.body.change_password, parseInt(process.env.HASHED_TIMES));
     var connection = get_connection();
-    connection.query("Update users SET password = ? WHERE email=?", [hashed_password, req.body.uniqname], (err, data)=>{
+    connection.query("Update users SET password = ?, change_password_active = ? WHERE email=?", [hashed_password, false, req.body.uniqname], (err, data)=>{
       if(err){
         console.log(err);
         throw err;
@@ -450,7 +447,11 @@ app.get("/forget-password/:uniqname/:change_hash", check_authenticated, async fu
 
   var requested_date;
   var results;
-  const [rows, fields] = await connection.execute("SELECT * FROM users WHERE email = ?", [req.params.uniqname]);
+  const [rows, fields] = await connection.execute("SELECT * FROM users WHERE email = ? AND change_password_active = ?", [req.params.uniqname, true]);
+  if(rows.length == 0){
+    res.render("home.ejs", {message:"Link expired. Please go to forgot password and generate a new link"});
+    return;
+  }
   console.log(rows);
   console.log("email is " + rows[0].change_password_last_request);
   var curr_date = new Date();
@@ -463,11 +464,11 @@ app.get("/forget-password/:uniqname/:change_hash", check_authenticated, async fu
     console.log("something's not right with change pssword date");
     date2.setDate(date2.getDate() + 1);
   }
-
   else{
     var diff = curr_date - requested_date;
     //1 hour
     var THRESHOLD = 1800000;
+
     if(diff < THRESHOLD){
       if(!bcrypt.compareSync(req.params.change_hash, rows[0].change_password_hash)){
         res.render("home.ejs", {message: "Token wrong. Please go to forgot password and try again"});
@@ -476,10 +477,12 @@ app.get("/forget-password/:uniqname/:change_hash", check_authenticated, async fu
         //var redirect_route = "/change-password/" + req.params.uniqname + "/" + req.params.change_hash;
         //res.redirect("/");
         res.render("change_password.ejs", {message: "please enter a new password", uniqname: req.params.uniqname});
+        return;
       }
     }
     else{
       res.render("home.ejs", {message: "Token expired. Please go to forgot password and try again"});
+      return;
     }
   }
 
@@ -498,11 +501,11 @@ app.post("/forgot-password", check_authenticated, async function(req,res){
   var verify_hash = randomstring.generate(parseInt(process.env.VERIFY_HASH));
   var hashed_password = await bcrypt.hash(verify_hash, parseInt(process.env.HASHED_TIMES));
   var current_date = new Date();
-  var set_hash = "UPDATE users SET change_password_hash = ?, change_password_last_request = ? WHERE email = ?";
+  var set_hash = "UPDATE users SET change_password_hash = ?, change_password_last_request = ?, change_password_active = ? WHERE email = ?";
 
   const connection = get_connection();
   
-  connection.query(set_hash, [hashed_password, current_date, uniqname], (err, data)=>{
+  connection.query(set_hash, [hashed_password, current_date, true, uniqname], (err, data)=>{
     if(err){
       console.log(err);
       throw err;
@@ -575,7 +578,8 @@ app.get("/init", (req, res)=>{
       "email VARCHAR(100) not NULL UNIQUE, " +
       "password VARCHAR(100) not NULL, " +
       "change_password_hash VARCHAR(256), " +
-      "change_password_last_request DATETIME, " + 
+      "change_password_last_request DATETIME, " +
+      "change_password_active BOOLEAN, " +   
       "PRIMARY KEY(id))";
     connection.query(query_string, (err, results, fields)=>{
           if (err){

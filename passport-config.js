@@ -42,7 +42,6 @@ function initialize (passport){
         const connect = get_connection();
         const query = "SELECT * from users WHERE email = ?";
         connect.query(query, [login_username], (err, rows) =>{
-          console.log("authenticating user: " + login_username + " with password " + login_password);
           if(err){
               return done(err);
           }
