@@ -137,7 +137,8 @@ app.post("/register", check_authenticated, async(req, res) =>{
               from: "mtripshare@mtripshare.com",
               to: email,
               subject: "Please Verify Your TripShare Account",
-              html: "Please use the following link in the browser to complete your account verification setup " + "<br/>" + process.env.VERIFY_URL + verify_hash
+	      text: "Please use the following link to complete your registration: " + process.env.VERIFY_URL + verify_hash
+             /* html: "Please use the following link in the browser to complete your account verification setup " + "<br/>" + process.env.VERIFY_URL /* + verify_hash */
             }; 
             
             transporter.sendMail(mail_options, function(error, info){
@@ -516,7 +517,8 @@ app.post("/forgot-password", check_authenticated, async function(req,res){
       from: "mtripshare@mtripshare.com",
       to: email,
       subject: "Reset Your MTripShare Password",
-      html: "Please use the following link to reset your password" + "<br/>" + process.env.PASSWORD_RESET_URL + uniq_hash
+      text: "Please use the following link to reset your password: " + process.env.PASSWORD_RESET_URL + uniq_hash
+      /* html: "Please use the following link to reset your password" + "<br/>" + process.env.PASSWORD_RESET_URL + uniq_hash */
     };
      
     mailgun.messages().send(data, function (error, body) {
