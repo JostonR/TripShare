@@ -46,10 +46,28 @@ var randomstring = require("randomstring");
 
 var nodemailer = require("nodemailer");
 var transporter = nodemailer.createTransport({
+  /*
   service:"gmail",
   auth: {
     user: process.env.EMAIL2,
     pass: process.env.EMAIL2_PASSWORD
+  }
+  */
+ host: "smtp.mailgun.org",
+ port: 465,
+ secure: true,
+ auth: {
+   user: process.env.SMTP_EMAIL,
+   pass: process.env.SMTP_PASSWORD
+ }
+});
+
+transporter.verify(function(error, success){
+  if(error){
+    console.log(error);
+  }
+  else{
+    console.log("email server ready");
   }
 });
 
@@ -117,12 +135,12 @@ app.post("/register", check_authenticated, async(req, res) =>{
             res.render("home.ejs", {message: err.code});
           }
           else{
-            /*
+            
             var mail_options = {
-              from: process.env.EMAIL,
+              from: "mtripshare@mtripshare.com",
               to: email,
               subject: "Please Verify Your TripShare Account",
-              html: "Please click " + "<a href='http://localhost:3000/verify/" + verify_hash + "'>here</a> to verify your account"
+              html: "Please use the following link in the browser to complete your account verification setup " + "<br/>" + process.env.VERIFY_URL + verify_hash
             }; 
             
             transporter.sendMail(mail_options, function(error, info){
@@ -133,7 +151,9 @@ app.post("/register", check_authenticated, async(req, res) =>{
                 console.log("Email send: " + info.response);
               }
             });   
-            */
+            
+
+          /*********MAILGUN Way
            var data = {
             from: "mtripshare@mtripshare.com",
             to: email,
@@ -144,6 +164,8 @@ app.post("/register", check_authenticated, async(req, res) =>{
           mailgun.messages().send(data, function (error, body) {
             console.log(body);
           });
+
+          */
             res.render("home.ejs", {message: "Please check your email to verify your account"});
           }
         });
