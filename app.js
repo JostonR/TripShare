@@ -513,7 +513,7 @@ app.post("/forgot-password", check_authenticated, async function(req,res){
       from: "mtripshare@mtripshare.com",
       to: email,
       subject: "Reset Your MTripShare Password",
-      html: "Please click " + "<a href='" + process.env.PASSWORD_RESET_URL + uniq_hash + "'>here</a> to reset your password"
+      html: "Please use the following link to reset your password" + "<br/>" + process.env.PASSWORD_RESET_URL + uniq_hash
     };
      
     mailgun.messages().send(data, function (error, body) {
