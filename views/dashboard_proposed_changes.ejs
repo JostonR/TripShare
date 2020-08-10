@@ -17,6 +17,10 @@
         background-color: #E3DFDF;
     }
 
+    a, a:visited { 
+        text-decoration: none;
+        color: #2A3592; 
+    }
 
     /********************************
     Style related to the Edit Trip Modal
@@ -236,6 +240,36 @@ Search Trip Mates
         color: #2A3592;
     }
 
+    #donate{
+        position: absolute;
+        width: 173px;
+        height: 51px;
+        left: 1267px;
+        top: 68px;
+
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 20px;
+        line-height: 28px;
+        color: #2A3592;
+    }
+    #how-to{
+        position: absolute;
+        width: 160px;
+        height: 51px;
+        left: 68px;
+        top: 45px;
+
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 20px;
+        line-height: 28px;
+        color: #2A3592;
+
+    }
+
 </style>
 <body bgcolor=#2A3592>
     <div id="scheduled_trips" class="header">
@@ -263,8 +297,23 @@ Search Trip Mates
     <form id="header_band" action="/logout?_method=DELETE" method="POST">
         <button>Logout</button>
     </form>
+    <!--
     <div id="app-name">
         <h1>MTripShare</h1>
+    </div>
+    -->
+
+    <div id="app-name">
+        <h1><a href="/dashboard">MTripShare</a></h1>
+    </div>
+
+
+    <div id="donate">
+        <h3><a href="/donate">Donate</a></h3>
+    </div>
+
+    <div id="how-to">
+        <h3><a href="/how-to">How to use this webiste</a></h3>
     </div>
 
 

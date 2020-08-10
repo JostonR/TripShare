@@ -370,32 +370,20 @@ app.post("/search", check_not_authenticated, (req, res) =>{
 //----------------------------------------------------------------------------------------------------------
 //Helpers Routes
 //----------------------------------------------------------------------------------------------------------
+app.get("/donate", (req, res) =>{
+  res.render("donate.ejs");
+});
+
+app.get("/how-to", (req,res) =>{
+  res.render("how-to.ejs");
+});
+
+
+//Verification Route
 app.get("/verify/:verify_hash", check_authenticated, async function(req, res){
   const connection = await get_connection_two();
   const inner_connection = await get_connection_two();
   var query_string = "SELECT id FROM users WHERE hash=?";
-  /*
-  connection.query(query_string, [req.params.verify_hash], function(err, data){
-    if(err){
-      console.log(err);
-    }
-    else if(data.length != 0){
-      query_string = "UPDATE users SET active =? WHERE id=?";
-        inner_connection.query(query_string, [true, data[0]], (err) =>{
-          if(err){
-            console.log(err);
-            throw (err);
-          }
-          else{
-            res.render("home.ejs", {message: "Thank you for verifying. Please log in"});
-          }
-        });
-    }
-    else{
-      res.render("home.ejs", {message: "Couldn't Verify user"});
-    }
-  });
-  */
 
   const [row, fields] = await connection.execute(query_string, [req.params.verify_hash]);
   if(row.length != 0){
@@ -407,6 +395,9 @@ app.get("/verify/:verify_hash", check_authenticated, async function(req, res){
     res.render("home.ejs", {message: "Couldn't Verify user"});
   }
 });
+
+
+//Forget password starts
 
 app.get("/forgot", check_authenticated, (req,res) =>{
   res.render("forgot_password.ejs");
@@ -496,22 +487,6 @@ app.post("/forgot-password", check_authenticated, async function(req,res){
     }
     else{
       var uniq_hash = uniqname + "/" + verify_hash;
-      /*
-      var mail_options = {
-        from: process.env.EMAIL,
-        to: email,
-        subject: "Reset Your MTripShare Password",
-        html: "Please click " + "<a href='http://localhost:3000/forget-password/" + uniq_hash + "'>here</a> to reset your password"
-      }; 
-      transporter.sendMail(mail_options, function(error, info){
-        if(error){
-          console.log(error);
-        }
-        else{
-          console.log("Email send: " + info.response);
-        }
-      });  
-      */
      var data = {
       from: "mtripshare@mtripshare.com",
       to: email,
@@ -528,6 +503,8 @@ app.post("/forgot-password", check_authenticated, async function(req,res){
   });
 
 });
+
+//forgot password ends
 
 
 
