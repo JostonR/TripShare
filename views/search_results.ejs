@@ -132,6 +132,61 @@
         text-align: center;
         color: #2A3592;
     }
+
+    a, a:visited { 
+        text-decoration: none;
+        color: #2A3592; 
+    }
+
+
+    #header_band{
+        position: absolute;
+        width: 1440px;
+        height: 65px;
+        left: 0px;
+        top: 65px;
+        background: #E1C323;
+    }
+
+    #app-name{
+        position: absolute;
+        width: 361px;
+        height: 62px;
+        left: 512px;
+        top: 68px;
+        text-align: center;
+        color: #2A3592;
+    }
+
+    #donate{
+        position: absolute;
+        width: 173px;
+        height: 51px;
+        left: 1267px;
+        top: 68px;
+
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 20px;
+        line-height: 28px;
+        color: #2A3592;
+    }
+    #how-to{
+        position: absolute;
+        width: 160px;
+        height: 51px;
+        left: 68px;
+        top: 45px;
+
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 20px;
+        line-height: 28px;
+        color: #2A3592;
+
+    }
     /*Edit Search Modal Ends */
 </style>
 
@@ -148,6 +203,28 @@
         }
     }
     %>
+
+    <form id="header_band" action="/logout?_method=DELETE" method="POST">
+        <button>Logout</button>
+    </form>
+    <!--
+    <div id="app-name">
+        <h1>MTripShare</h1>
+    </div>
+    -->
+
+    <div id="app-name">
+        <h1><a href="/dashboard">MTripShare</a></h1>
+    </div>
+
+
+    <div id="donate">
+        <h3><a href="/donate">Donate</a></h3>
+    </div>
+
+    <div id="how-to">
+        <h3><a href="/how-to">How to use this webiste</a></h3>
+    </div>
     <div id="results-header" class="header"><%=header%></div>
 
     <div id="search-body"></div>
