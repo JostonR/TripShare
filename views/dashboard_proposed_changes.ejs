@@ -7,8 +7,8 @@
 
 <style>
     .header {
-        background-color: #E1C323;
-        color: #2A3592;
+        background-color: #FFCB05;
+        color: #00274C;
         text-align: center;
         font-size: 30px;
     }
@@ -19,7 +19,7 @@
 
     a, a:visited { 
         text-decoration: none;
-        color: #2A3592; 
+        color: #00274C; 
     }
 
     /********************************
@@ -41,7 +41,7 @@
     .edit-trip-modal-content{
         width: 1000px;
         height: 800px;
-        background-color: #E1C323;
+        background-color: #FFCB05;
         border-radius: 4px;
         position:relative;  
     }
@@ -64,7 +64,7 @@
     .trip_modal_content{
         width: 1000px;
         height: 800px;
-        background-color: #E1C323;
+        background-color: #FFCB05;
         border-radius: 4px;
         position:relative;
     }
@@ -80,12 +80,12 @@
 
     .trip_title{
         text-align: center;
-        color: #2A3592;
+        color: #00274C;
     }
 
     .schedule_trip_form{
         text-align: center;
-        color: #2A3592;
+        color: #00274C;
     }
 
     #schedule_new_trip_button{
@@ -97,9 +97,9 @@
         border-radius: 25px;
         left: 560px;
         top: 400px;
-        background: #E1C323;
+        background: #FFCB05;
         text-align: center;
-        color: #2A3592;
+        color: #00274C;
         font-size: 42px;
         cursor: pointer;
     }
@@ -137,11 +137,11 @@
 
     #user-trip-table{
         overflow:auto;
-        color: #2A3592;
+        color: #00274C;
     }
     #user-trips{
         overflow:auto;
-        color: #2A3592;
+        color: #00274C;
         border-spacing: 0 15px;
     }
     .user-trip-div-again{
@@ -217,7 +217,7 @@ Search Trip Mates
         left: 0px;
         top: 512px;
         text-align: center;
-        color: #2A3592;
+        color: #00274C;
     }
 
 
@@ -227,7 +227,7 @@ Search Trip Mates
         height: 65px;
         left: 0px;
         top: 65px;
-        background: #E1C323;
+        background: #FFCB05;
     }
 
     #app-name{
@@ -237,7 +237,7 @@ Search Trip Mates
         left: 512px;
         top: 68px;
         text-align: center;
-        color: #2A3592;
+        color: #00274C;
         cursor: pointer;
     }
 
@@ -253,7 +253,7 @@ Search Trip Mates
         font-weight: normal;
         font-size: 20px;
         line-height: 28px;
-        color: #2A3592;
+        color: #00274C;
         cursor: pointer;
     }
     #how-to{
@@ -268,13 +268,13 @@ Search Trip Mates
         font-weight: normal;
         font-size: 20px;
         line-height: 28px;
-        color: #2A3592;
+        color: #00274C;
         cursor: pointer;
 
     }
 
 </style>
-<body bgcolor=#2A3592>
+<body bgcolor=#00274C>
     <div id="scheduled_trips" class="header">
         Trips Scheduled
     </div>
@@ -522,12 +522,12 @@ Search Trip Mates
                             <option value = "Other">Other</option>
                         </select>           
                     </div>
-                    <h3>Date (yyy-mm-dd non-Chrome users)</h3>
+                    <h3>Date (yyy-mm-dd for Safari users)</h3>
                     <div>
                         <input type="date" name="date" min=<%=current_date%> max="2020-12-31" required>
                     </div>
                     <br></br>
-                    <h3>Estimated DTW Departure Time (hh:mm 24 hour time non-Chrome users)</h3>
+                    <h3>Estimated DTW Departure Time (hh:mm 24 hour time for Safari users)</h3>
                     <h4>What time are you planning to get into a mode of transportation to leave DTW? (hrs:min, am/pm)</h4>
                     <div>
                         <input type="time" name="time" placeholder="hrs:mins" required/>
