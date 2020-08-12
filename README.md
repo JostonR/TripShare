@@ -17,7 +17,8 @@ I wanted to join the UM communities and find a make a global database of trip lo
 After making an account, the user will be greeted with a dashboard where they should log their trip logistics and use the search filters to find other UM riders.
 
 ## 0. Dashboard 
-![](Dashboard.png)
+
+![](images/Dashboard.png)
 
 The landing dashboard is a one shot view of their scheduled trips (top left), mate finder (right half), and quick add (bottom left tba). 
 
@@ -35,6 +36,6 @@ After logging their trip, users can look for other UM students via the navigatio
 
 ## 3. Viewing Results
 
-![] (images/Search%20Results.png)
+![](images/Search%20Results.png)
 
 After entering their search criteria filters, users will be met with a results page where it will show all matching trips. From there depending on the results, a user can use the uniqname of matching trips to reach out to students via email, or click 'Edit Search Criteria' to expand or narrow the search results.
