@@ -16,4 +16,4 @@ I wanted to join the UM communities and find a make a global database of trip lo
 
 After making an account, a UM student should log their trip logistics and use the search filters to find other UM riders.
 
-! [](Schedule%20a%20Trip.png)
+![](Schedule%20a%20Trip.png)
