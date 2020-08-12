@@ -540,6 +540,7 @@ app.delete("/logout", (req,res) =>{
   res.redirect("/");
 });
 
+/*
 app.get("/nukeDB", (req, res) =>{
     res.render("initializeDB.html");
 })
@@ -631,7 +632,7 @@ app.get("/init", (req, res)=>{
 });
 
 
-
+*/
 app.listen(3000, () => {
     console.log("Server is listening");
 });
