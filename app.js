@@ -96,7 +96,13 @@ function get_connection_two(){
   });
 };
 
-
+var pool = mysql.createPool({
+  connectionLimit : 200,
+  host: "localhost",
+  user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: "mrideshare"
+});
 
 
 
@@ -113,7 +119,7 @@ app.post("/login", check_authenticated, passport.authenticate("local", {
   failureFlash: true
 }));
 app.post("/register", check_authenticated, async(req, res) =>{
-    var connection = get_connection();
+    //var connection = get_connection();
     const username = req.body.create_username;
     var email = username + process.env.MAKE_EMAIL;
     var verify_hash = randomstring.generate(parseInt(process.env.VERIFY_HASH));
@@ -127,7 +133,7 @@ app.post("/register", check_authenticated, async(req, res) =>{
     }
     try{
         const query_string = "INSERT INTO users (email, password, active, hash, change_password_active) VALUES (?, ?, ?, ?, ?)";
-        connection.query(query_string, [username, hashed_password, false, verify_hash, false], (err, results, fields) =>{
+        pool.query(query_string, [username, hashed_password, false, verify_hash, false], (err, results, fields) =>{
           if(err){
             res.render("home.ejs", {message: err.code});
           }
@@ -201,9 +207,9 @@ app.post("/schedule", check_not_authenticated, async(req, res) => {
   console.log("raw time: " + req.body.time);
   const date_time = date + " " + hour + ":" + min;
 
-  const connection = get_connection();
+  //const connection = get_connection();
   const query_string = "INSERT INTO trips (userID, airline, date, time, calendarInfo, streetNum, streetName, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-  connection.query(query_string, [req.user.id, airline, date, time, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
+  pool.query(query_string, [req.user.id, airline, date, time, date_time, street_num, street_addr, "Ann Arbor", "Michigan", zipcode], (err, results, fields) =>{
       if(err){
           console.log("error inserting new trip");
           console.log(err);
@@ -221,9 +227,9 @@ app.post("/schedule", check_not_authenticated, async(req, res) => {
 
 app.get("/dashboard", check_not_authenticated, (req, res) =>{
   
-  var connection = get_connection();
+  //var connection = get_connection();
   var query_string = "SELECT * FROM trips WHERE userID= ? ORDER BY calendarINFO";
-  connection.query(query_string, [req.user.id], (err, data, fields)=>{
+  pool.query(query_string, [req.user.id], (err, data, fields)=>{
       if (err){
         console.log("Error showing user's trips");
         throw err;
@@ -261,9 +267,9 @@ app.post("/alter", check_not_authenticated, (req, res) => {
   var trip = req.body.trip;
   var input = req.body.input;
 
-  var connection = get_connection();
+  //var connection = get_connection();
   var query_string = "SELECT * FROM trips WHERE id= ?";
-  connection.query(query_string, [req.body.trip_id], (err, data, fields) =>{
+  pool.query(query_string, [req.body.trip_id], (err, data, fields) =>{
     if(err){
       console.log("Error showing current editable trip");
       throw err;
@@ -290,8 +296,8 @@ app.post("/alter", check_not_authenticated, (req, res) => {
 
 app.post("/delete-trip", check_not_authenticated, (req,res)=>{
   var query_string = "DELETE FROM trips WHERE id = ?";
-  var connection = get_connection();
-  connection.query(query_string, [req.body.tripID], (err) =>{
+  //var connection = get_connection();
+  pool.query(query_string, [req.body.tripID], (err) =>{
     if(err){
       console.log(err);
       throw err;
@@ -304,7 +310,7 @@ app.post("/delete-trip", check_not_authenticated, (req,res)=>{
 
 
 app.post("/edit", check_not_authenticated, (req,res)=>{
-  var connection = get_connection();
+  //var connection = get_connection();
   var string_query = "Update trips SET streetNum = ?, streetName = ?, zip = ?, airline = ?, calendarInfo = ?, date = ?, time = ?, city = ?, state = ? where id = ?";
   const street_num = req.body.street_num;
   const street_addr = req.body.street_addr;
@@ -317,7 +323,7 @@ app.post("/edit", check_not_authenticated, (req,res)=>{
   const time = req.body.time + ":00";
   const date_time = date + " " + hour + ":" + min;
 
-  connection.query(string_query, [street_num, street_addr, zipcode, airline, date_time, date, time, "Ann Arbor", "Michigan", req.body.tripID], (err, data)=>{
+  pool.query(string_query, [street_num, street_addr, zipcode, airline, date_time, date, time, "Ann Arbor", "Michigan", req.body.tripID], (err, data)=>{
     if(err){
       console.log(err);
       throw(err);
@@ -343,7 +349,8 @@ app.post("/search", check_not_authenticated, (req, res) =>{
   search_criteria.push(date);
   search_criteria.push(req.user.id);
   var additional_params = 0;
-  var connection = get_connection();
+  //var connection = get_connection();
+
   var query_string = "SELECT * FROM trips WHERE date = ? AND userID <> ?";
   if(airline != "Any"){
     query_string += " AND airline= ?";
@@ -359,28 +366,36 @@ app.post("/search", check_not_authenticated, (req, res) =>{
     search_criteria.push(end_time);
   }
 
-  connection.query(query_string, search_criteria, (err, data, fields) =>{
-    if(err){
-      console.log("error showing search critera");
-      console.log(err);
-      throw err;
-    }
-    else{
-      var user_info;
-      connection.query("SELECT * FROM users", [], (err, results)=>{
-        if(err){
-          console.log("cant get users for search results");
-          console.log(err);
-          throw err;
-        }
-        else{
-          user_info = results;
-          var header = "Showing results for";
-          //for(var i = 0; i < )
-          res.render("search_results.ejs", {search_results_data: data, user_table: user_info, criteria: search_criteria});
-        }
-      });
-    }
+
+  pool.getConnection(function(err,connection){
+    if(err) throw err;
+
+    connection.query(query_string, search_criteria, (err, data, fields) =>{
+      if(err){
+        console.log("error showing search critera");
+        console.log(err);
+        throw err;
+      }
+      else{
+        var user_info;
+        connection.query("SELECT * FROM users", [], (err, results)=>{
+          if(err){
+            console.log("cant get users for search results");
+            console.log(err);
+            throw err;
+          }
+          else{
+            user_info = results;
+            var header = "Showing results for";
+            //for(var i = 0; i < )
+            connection.release();
+            res.render("search_results.ejs", {search_results_data: data, user_table: user_info, criteria: search_criteria});
+          }
+        });
+      }
+    });
+  
+    
   });
 
 });
@@ -533,18 +548,6 @@ app.post("/forgot-password", check_authenticated, async function(req,res){
 
 //forgot password ends
 
-
-
-app.delete("/logout", (req,res) =>{
-  req.logOut();
-  res.redirect("/");
-});
-
-/*
-app.get("/nukeDB", (req, res) =>{
-    res.render("initializeDB.html");
-})
-
 app.get("/clear", (req,res) =>{
   const connection = get_connection();
   connection.query("DELETE FROM users WHERE email=?", ["josephar"], (err) =>{
@@ -558,6 +561,18 @@ app.get("/clear", (req,res) =>{
   });
 
 });
+
+app.delete("/logout", (req,res) =>{
+  req.logOut();
+  res.redirect("/");
+});
+
+/*
+app.get("/nukeDB", (req, res) =>{
+    res.render("initializeDB.html");
+})
+
+
 
 app.get("/init", (req, res)=>{
     var connection = get_connection();
