@@ -562,7 +562,7 @@ app.get("/clear", (req,res) =>{
   });
 
 });
-
+/*
 app.get("/ping", (req,res) =>{
   pool.query("SELECT * from users", (err, rows) =>{
     if(err){
@@ -608,7 +608,7 @@ app.get("/ping", (req,res) =>{
     }
   });
 });
-
+*/
 app.delete("/logout", (req,res) =>{
   req.logOut();
   res.redirect("/");
