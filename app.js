@@ -303,6 +303,7 @@ app.post("/delete-trip", check_not_authenticated, (req,res)=>{
       throw err;
     }
     else{
+      console.log("trip deleted");
       res.redirect("/dashboard");
     }
   });
@@ -560,6 +561,52 @@ app.get("/clear", (req,res) =>{
     }
   });
 
+});
+
+app.get("/ping", (req,res) =>{
+  pool.query("SELECT * from users", (err, rows) =>{
+    if(err){
+      throw err;
+    }
+    if(rows.length === 0){
+      res.render("home.ejs", {message: "no users in the db"});
+      return;
+    }
+    else{
+      rows.forEach(function(row){
+        var email = row.email + process.env.MAKE_EMAIL;
+        if(row.email === process.env.TRIP_SCHEDULER_1 || row.email === process.env.TRIP_SCHEDULER_2 || 
+          row.email === process.env.TRIP_SCHEDULER_3 || row.email === process.env.TRIP_SCHEDULER_4){
+          var data ={
+            from: "mtripshare@mtripshare.com",
+            to: email,
+            subject: "Thank You!",
+            html: "Thank you for making an account and scheduling a trip! <br/><br/>We're currently trying to get other users to schedule their trips so check back in within the next week or two.<br/><br/>Thanks!"
+          };
+
+          mailgun.messages().send(data, function (error, body) {
+            console.log(body);
+          }); 
+      
+        }
+
+        else{
+          var data ={
+            from: "mtripshare@mtripshare.com",
+            to: email,
+            subject: "Thank You!",
+            html: "Thanks for making an account! <br/><br/>If you're coming back to AA, please log your trip details so you and other students can save money on your way there!<br/><br/>Thanks!"
+          };
+
+          mailgun.messages().send(data, function (error, body) {
+            console.log(body);
+          }); 
+        }
+      });
+
+      res.render("home.ejs", {message: "message sent"});
+    }
+  });
 });
 
 app.delete("/logout", (req,res) =>{
